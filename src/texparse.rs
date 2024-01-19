@@ -1,3 +1,7 @@
+use lazy_static::lazy_static;
+use std::collections::hash_map::DefaultHasher;
+use std::hash::{Hash, Hasher};
+use std::slice::Iter;
 use std::string::ToString;
 use std::{
     fs::read_to_string,
@@ -7,19 +11,25 @@ use std::{
 pub const BEGIN_FRAME: &'static str = r"\begin{frame}";
 pub const END_FRAME: &'static str = r"\end{frame}";
 pub const APPENDIX: &'static str = r"\appendix";
+pub const BEGIN_DOCUMENT: &'static str = r"\begin{document}";
 pub const END_DOCUMENT: &'static str = r"\end{document}";
 
-pub struct BeamerContents<'a> {
-    preamble: &'a str,
-    slides: Vec<&'a str>,
-    appendix: Vec<&'a str>,
-    unused: Vec<&'a str>,
+lazy_static! {
+    // todo: think about handling windows
+    pub static ref CACHE: PathBuf = PathBuf::from("/tmp/.cache/beamer-quickie");
 }
 
-impl<'a> ToString for BeamerContents<'a> {
+pub struct BeamerContents {
+    preamble: String,
+    slides: Vec<String>,
+    appendix: Vec<String>,
+    unused: Vec<String>,
+}
+
+impl ToString for BeamerContents {
     fn to_string(&self) -> String {
         let mut contents = String::new();
-        contents.push_str(self.preamble);
+        contents.push_str(&self.preamble);
         self.slides.iter().for_each(|s| {
             contents.push_str(s);
             contents.push('\n');
@@ -40,54 +50,81 @@ impl<'a> ToString for BeamerContents<'a> {
     }
 }
 
-pub struct BeamerFile {
-    path: PathBuf,
-    contents: String,
-}
-
-impl BeamerFile {
-    pub fn read<P: AsRef<Path>>(path: P) -> anyhow::Result<Self> {
-        Ok(Self {
-            path: path.as_ref().to_path_buf(),
-            contents: read_to_string(path)?,
-        })
+impl BeamerContents {
+    pub fn single_frame_tex(&self, frame: &str) -> String {
+        let mut contents = String::new();
+        contents.push_str(&self.preamble);
+        contents.push_str(frame);
+        contents.push('\n');
+        contents.push_str(END_DOCUMENT);
+        contents.push('\n');
+        contents
     }
 
-    pub fn parse(&self) -> BeamerContents {
+    pub fn preamble(&self) -> &str {
+        &self.preamble
+    }
+    pub fn slides(&self) -> Iter<'_, String> {
+        self.slides.iter()
+    }
+    pub fn appendix(&self) -> Iter<'_, String> {
+        self.appendix.iter()
+    }
+    pub fn unused(&self) -> Iter<'_, String> {
+        self.unused.iter()
+    }
+
+    pub fn load<P: AsRef<Path>>(path: P) -> anyhow::Result<BeamerContents> {
         // everything till the first frame is considered preamle for
         // this use case
-        let p = self.contents.find(BEGIN_FRAME).unwrap();
-        let preamble = &self.contents[0..p];
-        let end = self.contents.find(END_DOCUMENT).unwrap();
+        let contents = read_to_string(path)?;
+        let p = contents.find(BEGIN_DOCUMENT).unwrap() + BEGIN_DOCUMENT.len();
+        let preamble = contents[0..p].to_string();
+        let end = contents.find(END_DOCUMENT).unwrap();
 
         let mut appendix = Vec::new();
-        let slides = if let Some(a) = self.contents[p..].find(APPENDIX) {
-            appendix = self.get_frames(a + p, end);
-            self.get_frames(p, a + p)
+        let slides = if let Some(a) = contents[p..].find(APPENDIX) {
+            appendix = get_frames(&contents, a + p, end);
+            get_frames(&contents, p, a + p)
         } else {
-            self.get_frames(p, end)
+            get_frames(&contents, p, end)
         };
-        let unused = self.get_frames(end, self.contents.len());
-        BeamerContents {
+        let unused = get_frames(&contents, end, contents.len());
+        Ok(BeamerContents {
             preamble,
             slides,
             appendix,
             unused,
-        }
+        })
     }
+}
 
-    fn get_frames(&self, mut start: usize, end: usize) -> Vec<&str> {
-        let mut slides = Vec::new();
-        while let Some(p) = self.contents[start..].find(BEGIN_FRAME) {
-            let p = p + start;
-            if p > end {
-                return slides;
-            }
-            let slide_end =
-                self.contents[p..].find(END_FRAME).expect("frame not ended") + p + END_FRAME.len();
-            slides.push(&self.contents[p..slide_end]);
-            start = slide_end;
+fn contents_hash(contents: &str) -> u64 {
+    let mut s = DefaultHasher::new();
+    contents.hash(&mut s);
+    s.finish()
+}
+
+fn get_frames(contents: &str, mut start: usize, end: usize) -> Vec<String> {
+    let mut slides = Vec::new();
+    while let Some(p) = contents[start..].find(BEGIN_FRAME) {
+        let p = p + start;
+        if p > end {
+            return slides;
         }
-        slides
+        let slide_end =
+            contents[p..].find(END_FRAME).expect("frame not ended") + p + END_FRAME.len();
+        slides.push(contents[p..slide_end].to_string());
+        start = slide_end;
     }
+    slides
+}
+
+pub fn thumbnail(cache_dir: &Path, contents: &str) -> PathBuf {
+    let hash = contents_hash(contents);
+    let fname = cache_dir.join(hash.to_string()).join("1.png");
+    if !fname.exists() {
+        println!("Create: {:?}", fname);
+    }
+    fname
 }
