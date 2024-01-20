@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <template class="BeamerQuickieWindow" parent="GtkApplicationWindow">
+    <property name="title" translatable="1">Beamer Quickie</property>
+    <property name="default-width">500</property>
+    <property name="default-height">300</property>
+    <property name="icon-name">x-office-presentation</property>
+    <property name="child">
+      <object class="GtkBox">
+	<property name="margin-start">10</property>
+	<property name="margin-end">10</property>
+	<property name="margin-top">10</property>
+	<property name="margin-bottom">10</property>
+        <property name="orientation">vertical</property>
+	<property name="spacing">10</property>
+        <child>
+          <object class="GtkBox">
+	    <property name="spacing">10</property>
+            <child>
+              <object class="GtkLabel">
+                <property name="label" translatable="1">Beamer(TeX) File:</property>
+                <property name="justify">right</property>
+                <property name="width-chars">16</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkText" id="txt_browse">
+                <property name="width-chars">50</property>
+                <property name="hexpand">1</property>
+                <property name="editable">False</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="btn_browse">
+		<property name="label">Browse</property>
+              </object>
+            </child>
+          </object>
+        </child>
+	<child>
+          <object class="GtkBox">
+	    <property name="spacing">10</property>
+            <child>
+              <object class="GtkBox">
+		<property name="spacing">10</property>
+		<child>
+		  <object class="GtkScrolledWindow">
+		    <property name="hexpand">True</property>
+		    <property name="vexpand">True</property>
+		    <!-- location for the slides listview -->
+		    <child>
+		      <object class="GtkListView" id="lv_slides">
+			<!-- <property name="hexpand">1</property> -->
+			<!-- <property name="enable-search">True</property> -->
+			<!-- <property name="search-match-mode">substring</property> -->
+			<!-- <property name="expression"> -->
+			<!--   <lookup type="GtkStringObject" name='string'></lookup> -->
+			<!-- </property> -->
+		      </object>
+		    </child>
+		  </object>
+		</child>
+
+              </object>
+            </child>
+	    
+	    <child>
+              <object class="GtkBox">
+		<property name="spacing">10</property>
+		<property name="orientation">vertical</property>
+		<child>
+		  <object class="GtkBox">
+		    <property name="spacing">10</property>
+		    <child>
+		      <object class="GtkButton" id="btn_save">
+			<property name="label">Save</property>
+		      </object>
+		    </child>
+		    <child>
+		      <object class="GtkSwitch" id="swt_save">
+			<!-- <property name="label">Auto</property> -->
+		      </object>
+		    </child>
+		  </object>
+		</child>
+		
+		<child>
+		  <object class="GtkScrolledWindow">
+		    <property name="hexpand">True</property>
+		    <property name="vexpand">True</property>
+		    <child>
+		      <object class="GtkTextView" id="txt_file">
+			<property name="vexpand">1</property>
+			<property name="focusable">1</property>
+			<property name="input-purpose">terminal</property>
+			<property name="monospace">1</property>
+		      </object>
+		    </child>
+		  </object>
+		</child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </property>
+  </template>
+</interface>

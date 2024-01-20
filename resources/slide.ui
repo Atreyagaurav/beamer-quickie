@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <template class="SlideRow" parent="GtkBox">
+    <property name="spacing">10</property>
+    <child>
+      <object class="GtkCheckButton" id="cb_slide">
+      </object>
+    </child>
+    <child>
+      <object class="GtkLabel" id="lb_slide">
+	<property name="hexpand">True</property>
+	<property name="halign">start</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkButton" id="btn_slide_edit">
+	<property name="icon-name">edit-symbolic</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkButton" id="btn_slide_top">
+        <property name="icon-name">go-top-symbolic</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkButton" id="btn_slide_up">
+        <property name="icon-name">go-up-symbolic</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkButton" id="btn_slide_down">
+        <property name="icon-name">go-down-symbolic</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkButton" id="btn_slide_bottom">
+        <property name="icon-name">go-bottom-symbolic</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkButton" id="btn_slide_delete">
+        <property name="icon-name">delete-symbolic</property>
+      </object>
+    </child>
+  </template>
+</interface>

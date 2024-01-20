@@ -1,12 +1,30 @@
-use std::env;
-
+mod slide;
+mod slide_row;
 mod texparse;
+mod window;
 
-fn main() {
-    let args: Vec<String> = env::args().collect();
-    let contents = texparse::BeamerContents::load(&args[1]).unwrap();
-    let slide = contents.slides().nth(4).unwrap();
-    println!("{}", contents.single_frame_tex(slide));
-    // texparse::thumbnail(&texparse::CACHE, slide);
-    // println!("{}", beamer.to_string());
+use gtk::prelude::*;
+use gtk::{gio, glib, Application};
+use window::Window;
+
+fn main() -> glib::ExitCode {
+    gio::resources_register_include!("beamer-quickie.gresource")
+        .expect("Failed to register resources.");
+
+    // Create a new application
+    let app = Application::builder()
+        .application_id("org.zerosofts.BeamerQuickie")
+        .build();
+
+    // Connect to "activate" signal of `app`
+    app.connect_activate(build_ui);
+
+    // Run the application
+    app.run()
+}
+
+fn build_ui(app: &Application) {
+    // Create a new custom window and present it
+    let window = Window::new(app);
+    window.present();
 }
