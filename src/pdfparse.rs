@@ -25,3 +25,9 @@ pub fn frames_pages(path: &Path) -> Vec<usize> {
     pages.sort();
     pages
 }
+
+pub fn pdf_pages_count(path: &Path) -> i32 {
+    let file = format!("file:{}", path.to_string_lossy());
+    let file = poppler::Document::from_file(&file, None).unwrap();
+    file.n_pages()
+}

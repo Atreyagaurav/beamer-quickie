@@ -1,6 +1,7 @@
 mod pdfparse;
 mod slide;
 mod slide_row;
+mod synctex;
 mod texparse;
 mod window;
 

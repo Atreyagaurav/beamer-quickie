@@ -11,7 +11,9 @@ cairo = "0.0.4"
 gtk = { version = "0.7.3", package = "gtk4", features = ["v4_12"] }
 itertools = "0.12.0"
 lazy_static = "1.4.0"
+libc = "0.2.152"
 poppler-rs = "0.22.0"
+synctex_sys = "0.1.0"
 
 [build-dependencies]
 glib-build-tools = "0.18.0"

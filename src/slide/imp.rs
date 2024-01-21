@@ -13,6 +13,8 @@ use super::SlideData;
 #[properties(wrapper_type = super::SlideObject)]
 pub struct SlideObject {
     #[property(name = "include", get, set, type = bool, member = include)]
+    #[property(name = "linestart", get, set, type = i32, member = linestart)]
+    #[property(name = "lineend", get, set, type = i32, member = lineend)]
     #[property(name = "content", get, set, type = String, member = content)]
     #[property(name = "label", get, set, type = String, member = label)]
     #[property(name = "image", get, set, type = PathBuf, member = image)]

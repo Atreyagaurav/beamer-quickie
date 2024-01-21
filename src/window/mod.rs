@@ -83,24 +83,35 @@ impl Window {
         self.imp()
             .txt_browse
             .connect_changed(clone!(@weak self as window => move |text| {
-                    if let Ok(bc) =
-                BeamerContents::load(text.text())
-                {
+                        if let Ok(bc) =
+                    BeamerContents::load(text.text())
+                    {
 
-            window.imp().preamble.replace(bc.preamble().to_string());
-            let pdffile = PathBuf::from(text.text()).with_extension("pdf");
-            let pages = crate::pdfparse::frames_pages(&pdffile);
-            window.slides().remove_all();
-            bc.slides().enumerate().for_each(|(i, s)| {
-            window.slides().append(
-                &SlideObject::new(
-                s.to_string(),
-                pages.get(i).map(|p| PathBuf::from(format!("temp/p-{}.png", p)))
-                )
-            )
-            });
+                window.imp().preamble.replace(bc.preamble().to_string());
+                let pdffile = PathBuf::from(text.text()).with_extension("pdf");
+            let pages: Vec<i32> = (0..crate::pdfparse::pdf_pages_count(&pdffile)).map(|i| i+1).collect();
+            let scanner = crate::synctex::Scanner::from_output(&pdffile, None);
+            let lines = scanner.get_lines(&pages);
+                window.slides().remove_all();
+                bc.slides().enumerate().for_each(|(_, s)| {
+            let sob = SlideObject::new(s);
+
+            let page = lines.iter().enumerate().filter_map(|(i, (_, l))| {
+                let s = sob.linestart();
+                let e = sob.lineend();
+                if (s..=e).contains(l) {
+                Some(i)
+                }else{
+                None
+                }
+            }).last();
+            if let Some(page) = page {
+                sob.set_image(PathBuf::from(format!("temp/p-{}.png", page)));
             }
-            }));
+                window.slides().append(&sob)
+                });
+                }
+                }));
 
         // TEMP for testing
         self.imp()

@@ -8,6 +8,8 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use crate::slide::SlideData;
+
 pub const BEGIN_FRAME: &'static str = r"\begin{frame}";
 pub const END_FRAME: &'static str = r"\end{frame}";
 pub const APPENDIX: &'static str = r"\appendix";
@@ -21,29 +23,29 @@ lazy_static! {
 
 pub struct BeamerContents {
     preamble: String,
-    slides: Vec<String>,
-    appendix: Vec<String>,
-    unused: Vec<String>,
+    slides: Vec<SlideData>,
+    appendix: Vec<SlideData>,
+    unused: Vec<SlideData>,
 }
 
 impl ToString for BeamerContents {
     fn to_string(&self) -> String {
         let mut contents = String::new();
         contents.push_str(&self.preamble);
-        self.slides.iter().for_each(|s| {
-            contents.push_str(s);
+        self.slides.iter().filter(|s| s.include).for_each(|s| {
+            contents.push_str(&s.content);
             contents.push('\n');
         });
         contents.push_str(APPENDIX);
         contents.push('\n');
-        self.appendix.iter().for_each(|s| {
-            contents.push_str(s);
+        self.appendix.iter().filter(|s| s.include).for_each(|s| {
+            contents.push_str(&s.content);
             contents.push('\n');
         });
         contents.push_str(END_DOCUMENT);
         contents.push('\n');
-        self.unused.iter().for_each(|s| {
-            contents.push_str(s);
+        self.unused.iter().filter(|s| s.include).for_each(|s| {
+            contents.push_str(&s.content);
             contents.push('\n');
         });
         contents
@@ -53,9 +55,9 @@ impl ToString for BeamerContents {
 impl BeamerContents {
     pub fn new(
         preamble: String,
-        slides: Vec<String>,
-        appendix: Vec<String>,
-        unused: Vec<String>,
+        slides: Vec<SlideData>,
+        appendix: Vec<SlideData>,
+        unused: Vec<SlideData>,
     ) -> Self {
         Self {
             preamble,
@@ -78,13 +80,13 @@ impl BeamerContents {
     pub fn preamble(&self) -> &str {
         &self.preamble
     }
-    pub fn slides(&self) -> Iter<'_, String> {
+    pub fn slides(&self) -> Iter<'_, SlideData> {
         self.slides.iter()
     }
-    pub fn appendix(&self) -> Iter<'_, String> {
+    pub fn appendix(&self) -> Iter<'_, SlideData> {
         self.appendix.iter()
     }
-    pub fn unused(&self) -> Iter<'_, String> {
+    pub fn unused(&self) -> Iter<'_, SlideData> {
         self.unused.iter()
     }
 
@@ -119,7 +121,7 @@ fn contents_hash(contents: &str) -> u64 {
     s.finish()
 }
 
-fn get_frames(contents: &str, mut start: usize, end: usize) -> Vec<String> {
+fn get_frames(contents: &str, mut start: usize, end: usize) -> Vec<SlideData> {
     let mut slides = Vec::new();
     while let Some(p) = contents[start..].find(BEGIN_FRAME) {
         let p = p + start;
@@ -128,17 +130,27 @@ fn get_frames(contents: &str, mut start: usize, end: usize) -> Vec<String> {
         }
         let slide_end =
             contents[p..].find(END_FRAME).expect("frame not ended") + p + END_FRAME.len();
-        slides.push(contents[p..slide_end].to_string());
+
+        let line_start = contents[..p].chars().filter(|&c| c == '\n').count() + 1;
+        let line_end = contents[..slide_end].chars().filter(|&c| c == '\n').count() + 1;
+        let s = SlideData::new(
+            true,
+            line_start as i32,
+            line_end as i32,
+            contents[p..slide_end].to_string(),
+            None,
+        );
+        slides.push(s);
         start = slide_end;
     }
     slides
 }
 
-pub fn thumbnail(cache_dir: &Path, contents: &str) -> PathBuf {
-    let hash = contents_hash(contents);
-    let fname = cache_dir.join(hash.to_string()).join("1.png");
-    if !fname.exists() {
-        println!("Create: {:?}", fname);
-    }
-    fname
-}
+// pub fn thumbnail(cache_dir: &Path, contents: &str) -> PathBuf {
+//     let hash = contents_hash(contents);
+//     let fname = cache_dir.join(hash.to_string()).join("1.png");
+//     if !fname.exists() {
+//         println!("Create: {:?}", fname);
+//     }
+//     fname
+// }
