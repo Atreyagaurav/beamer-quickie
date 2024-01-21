@@ -51,6 +51,20 @@ impl ToString for BeamerContents {
 }
 
 impl BeamerContents {
+    pub fn new(
+        preamble: String,
+        slides: Vec<String>,
+        appendix: Vec<String>,
+        unused: Vec<String>,
+    ) -> Self {
+        Self {
+            preamble,
+            slides,
+            appendix,
+            unused,
+        }
+    }
+
     pub fn single_frame_tex(&self, frame: &str) -> String {
         let mut contents = String::new();
         contents.push_str(&self.preamble);

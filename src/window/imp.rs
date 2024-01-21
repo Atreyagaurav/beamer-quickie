@@ -14,7 +14,10 @@ pub struct Window {
     #[template_child]
     pub btn_browse: TemplateChild<gtk::Button>,
     #[template_child]
+    pub btn_save: TemplateChild<gtk::Button>,
+    #[template_child]
     pub lv_slides: TemplateChild<gtk::ListView>,
+    pub preamble: RefCell<String>,
     pub slides: RefCell<Option<gio::ListStore>>,
 }
 
@@ -43,6 +46,7 @@ impl ObjectImpl for Window {
 
         // Setup
         let obj = self.obj();
+        obj.setup_preamble();
         obj.setup_slides();
         obj.setup_callbacks();
         obj.setup_factory();

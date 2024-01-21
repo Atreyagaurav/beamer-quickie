@@ -35,6 +35,16 @@
 		<property name="label">Browse</property>
               </object>
             </child>
+            <child>
+              <object class="GtkButton" id="btn_save">
+		<property name="label">Save</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="btn_save_new">
+		<property name="label">Save New</property>
+              </object>
+            </child>
           </object>
         </child>
 	<child>
@@ -72,7 +82,7 @@
 		  <object class="GtkBox">
 		    <property name="spacing">10</property>
 		    <child>
-		      <object class="GtkButton" id="btn_save">
+		      <object class="GtkButton" id="btn_save_slide">
 			<property name="label">Save</property>
 		      </object>
 		    </child>

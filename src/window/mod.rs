@@ -32,6 +32,10 @@ impl Window {
             .expect("Could not get slides.")
     }
 
+    fn setup_preamble(&self) {
+        self.imp().preamble.replace("".to_string());
+    }
+
     fn setup_slides(&self) {
         // Create new model
         let model = gio::ListStore::new::<SlideObject>();
@@ -64,15 +68,44 @@ impl Window {
             }));
 
         self.imp()
+            .btn_save
+            .connect_clicked(clone!(@weak self as window => move |_| {
+                let preamble =  window.imp().preamble.borrow().clone();
+
+            //     let slides = window.slides().iter::<ListItem>().map(|s| s.unwrap()
+            //             .item()
+            //             .and_downcast::<SlideObject>()
+            //             .expect("The item has to be an `SlideObject`.").content()).collect();
+            //     let beamer = BeamerContents::new(preamble, slides, vec![], vec![]);
+            // println!("{}", beamer.to_string());
+                        }));
+
+        self.imp()
             .txt_browse
             .connect_changed(clone!(@weak self as window => move |text| {
                     if let Ok(bc) =
                 BeamerContents::load(text.text())
-                    {
-                bc.slides().for_each(|s| {window.slides().append(&SlideObject::new(s.to_string()))}
-                );
+                {
+
+            window.imp().preamble.replace(bc.preamble().to_string());
+            let pdffile = PathBuf::from(text.text()).with_extension("pdf");
+            let pages = crate::pdfparse::frames_pages(&pdffile);
+            window.slides().remove_all();
+            bc.slides().enumerate().for_each(|(i, s)| {
+            window.slides().append(
+                &SlideObject::new(
+                s.to_string(),
+                pages.get(i).map(|p| PathBuf::from(format!("temp/p-{}.png", p)))
+                )
+            )
+            });
             }
-                }));
+            }));
+
+        // TEMP for testing
+        self.imp()
+            .txt_browse
+            .set_text("/home/gaurav/work/presentations/ms-thesis/slides.tex");
     }
 
     // fn new_slide(&self) {

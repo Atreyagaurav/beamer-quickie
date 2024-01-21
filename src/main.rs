@@ -1,3 +1,4 @@
+mod pdfparse;
 mod slide;
 mod slide_row;
 mod texparse;

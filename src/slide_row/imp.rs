@@ -23,7 +23,7 @@ pub struct SlideRow {
     #[template_child]
     pub btn_slide_bottom: TemplateChild<gtk::Button>,
     #[template_child]
-    pub btn_slide_delete: TemplateChild<gtk::Button>,
+    pub img_slide: TemplateChild<gtk::Image>,
     // Vector holding the bindings to properties of `TaskObject`
     pub bindings: RefCell<Vec<Binding>>,
 }

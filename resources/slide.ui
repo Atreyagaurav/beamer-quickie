@@ -7,6 +7,12 @@
       </object>
     </child>
     <child>
+      <object class="GtkImage" id="img_slide">
+        <property name="resource">/org/zerosofts/BeamerQuickie/icons/slide.svg</property>
+	<property name="pixel-size">128</property>
+      </object>
+    </child>
+    <child>
       <object class="GtkLabel" id="lb_slide">
 	<property name="hexpand">True</property>
 	<property name="halign">start</property>
@@ -14,32 +20,67 @@
     </child>
     <child>
       <object class="GtkButton" id="btn_slide_edit">
-	<property name="icon-name">edit-symbolic</property>
+	<property name="valign">start</property>
+        <property name="tooltip-text" translatable="1">Edit Frame</property>
+        <child>
+          <object class="GtkImage">
+            <property name="resource">/org/zerosofts/BeamerQuickie/icons/edit.svg</property>
+          </object>
+	</child>
       </object>
     </child>
     <child>
       <object class="GtkButton" id="btn_slide_top">
-        <property name="icon-name">go-top-symbolic</property>
+	<property name="valign">start</property>
+        <child>
+          <object class="GtkImage">
+            <property name="resource">/org/zerosofts/BeamerQuickie/icons/move-top.svg</property>
+          </object>
+	</child>
       </object>
     </child>
     <child>
       <object class="GtkButton" id="btn_slide_up">
-        <property name="icon-name">go-up-symbolic</property>
+	<property name="valign">start</property>
+        <property name="tooltip-text" translatable="1">Move Up</property>
+        <child>
+          <object class="GtkImage">
+            <property name="resource">/org/zerosofts/BeamerQuickie/icons/move-up.svg</property>
+          </object>
+	</child>
       </object>
     </child>
     <child>
       <object class="GtkButton" id="btn_slide_down">
-        <property name="icon-name">go-down-symbolic</property>
+	<property name="valign">start</property>
+        <property name="tooltip-text" translatable="1">Move Down</property>
+        <child>
+          <object class="GtkImage">
+            <property name="resource">/org/zerosofts/BeamerQuickie/icons/move-down.svg</property>
+          </object>
+	</child>
       </object>
     </child>
     <child>
       <object class="GtkButton" id="btn_slide_bottom">
-        <property name="icon-name">go-bottom-symbolic</property>
+	<property name="valign">start</property>
+        <child>
+          <object class="GtkImage">
+            <property name="resource">/org/zerosofts/BeamerQuickie/icons/move-bottom.svg</property>
+          </object>
+	</child>
       </object>
     </child>
+    
     <child>
-      <object class="GtkButton" id="btn_slide_delete">
-        <property name="icon-name">delete-symbolic</property>
+      <object class="GtkButton" id="btn_slide_menu">
+	<property name="valign">start</property>
+        <property name="tooltip-text" translatable="1">Options</property>
+        <child>
+          <object class="GtkImage">
+            <property name="resource">/org/zerosofts/BeamerQuickie/icons/menu.svg</property>
+          </object>
+	</child>
       </object>
     </child>
   </template>

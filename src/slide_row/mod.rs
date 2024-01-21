@@ -29,16 +29,27 @@ impl SlideRow {
         // // Get state
         // let cb_slide = self.imp().cb_slide.get();
         let lb_slide = self.imp().lb_slide.get();
+        let cb_slide = self.imp().cb_slide.get();
+        let img_slide = self.imp().img_slide.get();
         let mut bindings = self.imp().bindings.borrow_mut();
 
-        // // Bind `task_object.completed` to `task_row.completed_button.active`
-        // let completed_button_binding = task_object
-        //     .bind_property("completed", &completed_button, "active")
-        //     .bidirectional()
-        //     .sync_create()
-        //     .build();
-        // // Save binding
-        // bindings.push(completed_button_binding);
+        // Bind `task_object.completed` to `task_row.completed_button.active`
+        let include_binding = slide_object
+            .bind_property("include", &cb_slide, "active")
+            .bidirectional()
+            .sync_create()
+            .build();
+        // Save binding
+        bindings.push(include_binding);
+
+        // Bind `task_object.completed` to `task_row.completed_button.active`
+        let image_binding = slide_object
+            .bind_property("image", &img_slide, "file")
+            .bidirectional()
+            .sync_create()
+            .build();
+        // Save binding
+        bindings.push(image_binding);
 
         // Bind `task_object.content` to `task_row.content_label.label`
         let label_binding = slide_object
