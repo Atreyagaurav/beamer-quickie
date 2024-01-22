@@ -1,18 +1,16 @@
 use std::path::{Path, PathBuf};
 use synctex_sys;
 
-use libc::{c_char, c_int};
+use libc::c_int;
 use std::ffi::{CStr, CString};
-
-use crate::slide::SlideData;
 
 pub struct Scanner {
     inner: synctex_sys::synctex_scanner_p,
 }
 
-struct Node {
-    inner: synctex_sys::synctex_node_p,
-}
+// struct Node {
+//     inner: synctex_sys::synctex_node_p,
+// }
 
 impl Scanner {
     pub fn from_output(output: &Path, dir: Option<&Path>) -> Self {
@@ -47,6 +45,7 @@ impl Scanner {
         }
     }
 
+    /// Get the line in the latex source for each pages in the pdf
     pub fn get_lines(&self, pages: &[i32]) -> Vec<(PathBuf, i32)> {
         pages
             .iter()

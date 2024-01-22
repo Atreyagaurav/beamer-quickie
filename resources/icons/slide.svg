@@ -2,9 +2,9 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="512"
-   height="512"
-   viewBox="0 0 512 512"
+   width="128"
+   height="128"
+   viewBox="0 0 128 128"
    version="1.1"
    id="svg1"
    inkscape:version="1.3.2 (091e20ef0f, 2023-11-25, custom)"
@@ -23,9 +23,9 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="px"
-     inkscape:zoom="1.2128163"
-     inkscape:cx="257.25248"
-     inkscape:cy="290.23357"
+     inkscape:zoom="2.8187187"
+     inkscape:cx="48.958414"
+     inkscape:cy="53.570439"
      inkscape:window-width="1920"
      inkscape:window-height="1031"
      inkscape:window-x="0"
@@ -40,27 +40,27 @@
      inkscape:groupmode="layer"
      id="layer1">
     <rect
-       style="fill:none;stroke:#ffffff;stroke-width:9.24094427;stroke-linecap:square;paint-order:stroke fill markers;stroke-dasharray:none"
+       style="fill:none;stroke:#ffffff;stroke-width:2.13568;stroke-linecap:square;stroke-dasharray:none;paint-order:stroke fill markers"
        id="rect1"
-       width="466.72165"
-       height="415.4989"
-       x="21.319267"
-       y="43.792313" />
+       width="107.86432"
+       height="96.026192"
+       x="9.5331116"
+       y="15.801266" />
     <text
        xml:space="preserve"
-       style="font-size:63.2453px;line-height:1;font-family:'Virgil 3 YOFF';-inkscape-font-specification:'Virgil 3 YOFF';letter-spacing:0px;word-spacing:0px;stroke-width:1.48231"
-       x="142.99062"
-       y="237.3756"
+       style="font-size:14.6167px;line-height:1;font-family:'Virgil 3 YOFF';-inkscape-font-specification:'Virgil 3 YOFF';letter-spacing:0px;word-spacing:0px;stroke-width:0.342577"
+       x="37.652649"
+       y="60.540409"
        id="text1"><tspan
          sodipodi:role="line"
-         x="142.99062"
-         y="237.3756"
+         x="37.652649"
+         y="60.540409"
          id="tspan2"
-         style="stroke-width:1.48231">LaTeX</tspan><tspan
+         style="stroke-width:0.342577">LaTeX</tspan><tspan
          sodipodi:role="line"
-         x="142.99062"
-         y="300.62091"
-         style="stroke-width:1.48231"
+         x="37.652649"
+         y="75.157112"
+         style="stroke-width:0.342577"
          id="tspan3">Beamer</tspan></text>
   </g>
 </svg>

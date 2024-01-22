@@ -6,6 +6,7 @@ use gtk::{gio, glib, Application, NoSelection, SignalListItemFactory};
 use gtk::{prelude::*, ListItem};
 use std::path::PathBuf;
 
+use crate::pdfparse;
 use crate::slide::SlideObject;
 use crate::slide_row::SlideRow;
 use crate::texparse::BeamerContents;
@@ -106,7 +107,7 @@ impl Window {
                 }
             }).last();
             if let Some(page) = page {
-                sob.set_image(PathBuf::from(format!("temp/p-{}.png", page)));
+                sob.set_image(pdfparse::get_thumbnail(&pdffile, page));
             }
                 window.slides().append(&sob)
                 });

@@ -12,6 +12,7 @@
 	<property name="pixel-size">128</property>
       </object>
     </child>
+
     <child>
       <object class="GtkLabel" id="lb_slide">
 	<property name="hexpand">True</property>
