@@ -3,10 +3,7 @@ use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 use std::slice::Iter;
 use std::string::ToString;
-use std::{
-    fs::read_to_string,
-    path::{Path, PathBuf},
-};
+use std::{fs::read_to_string, path::Path};
 
 use crate::slide::SlideData;
 
@@ -15,11 +12,6 @@ pub const END_FRAME: &'static str = r"\end{frame}";
 pub const APPENDIX: &'static str = r"\appendix";
 pub const BEGIN_DOCUMENT: &'static str = r"\begin{document}";
 pub const END_DOCUMENT: &'static str = r"\end{document}";
-
-lazy_static! {
-    // todo: think about handling windows
-    pub static ref CACHE: PathBuf = PathBuf::from("/tmp/.cache/beamer-quickie");
-}
 
 pub struct BeamerContents {
     preamble: String,
@@ -124,7 +116,7 @@ fn contents_hash(contents: &str) -> u64 {
 fn get_frames(contents: &str, mut start: usize, end: usize) -> Vec<SlideData> {
     let mut slides = Vec::new();
     while let Some(p) = contents[start..].find(BEGIN_FRAME) {
-        let p = p + start;
+        let p = contents[..(p + start)].rfind('\n').unwrap() + 1;
         if p > end {
             return slides;
         }
@@ -133,6 +125,7 @@ fn get_frames(contents: &str, mut start: usize, end: usize) -> Vec<SlideData> {
 
         let line_start = contents[..p].chars().filter(|&c| c == '\n').count() + 1;
         let line_end = contents[..slide_end].chars().filter(|&c| c == '\n').count() + 1;
+
         let s = SlideData::new(
             true,
             line_start as i32,
@@ -145,12 +138,3 @@ fn get_frames(contents: &str, mut start: usize, end: usize) -> Vec<SlideData> {
     }
     slides
 }
-
-// pub fn thumbnail(cache_dir: &Path, contents: &str) -> PathBuf {
-//     let hash = contents_hash(contents);
-//     let fname = cache_dir.join(hash.to_string()).join("1.png");
-//     if !fname.exists() {
-//         println!("Create: {:?}", fname);
-//     }
-//     fname
-// }

@@ -14,8 +14,8 @@ use crate::texparse::BeamerContents;
 glib::wrapper! {
     pub struct Window(ObjectSubclass<imp::Window>)
         @extends gtk::ApplicationWindow, gtk::Window, gtk::Widget,
-        @implements gio::ActionGroup, gio::ActionMap, gtk::Accessible, gtk::Buildable,
-                    gtk::ConstraintTarget, gtk::Native, gtk::Root, gtk::ShortcutManager;
+    @implements gio::ActionGroup, gio::ActionMap, gtk::Accessible, gtk::Buildable,
+    gtk::ConstraintTarget, gtk::Native, gtk::Root, gtk::ShortcutManager;
 }
 
 impl Window {
@@ -55,23 +55,23 @@ impl Window {
             .btn_browse
             .connect_clicked(clone!(@weak self as window => move |_| {
             let dialog = gtk::FileDialog::builder()
-                .title("Beamer LaTeX File")
-                .accept_label("Open")
-                .initial_folder(&gio::File::for_path(window.imp().txt_browse.text()))
-                .build();
+                        .title("Beamer LaTeX File")
+                        .accept_label("Open")
+                        .initial_folder(&gio::File::for_path(window.imp().txt_browse.text()))
+                        .build();
 
             dialog.open(Some(&window), gio::Cancellable::NONE,clone!(@weak window => move |file| {
-                if let Ok(file) = file {
+                        if let Ok(file) = file {
                 let filename = file.path().expect("Couldn't get file path");
                 let name = filename.to_string_lossy();
                 window.imp().txt_browse.set_text(&name);
-                }}));
-            }));
+                        }}));
+                }));
 
         self.imp()
             .btn_save
             .connect_clicked(clone!(@weak self as window => move |_| {
-                let preamble =  window.imp().preamble.borrow().clone();
+                    let preamble =  window.imp().preamble.borrow().clone();
 
             //     let slides = window.slides().iter::<ListItem>().map(|s| s.unwrap()
             //             .item()
@@ -79,40 +79,40 @@ impl Window {
             //             .expect("The item has to be an `SlideObject`.").content()).collect();
             //     let beamer = BeamerContents::new(preamble, slides, vec![], vec![]);
             // println!("{}", beamer.to_string());
-                        }));
+                }));
 
         self.imp()
             .txt_browse
             .connect_changed(clone!(@weak self as window => move |text| {
-                        if let Ok(bc) =
+                if let Ok(bc) =
                     BeamerContents::load(text.text())
-                    {
+                {
 
-                window.imp().preamble.replace(bc.preamble().to_string());
-                let pdffile = PathBuf::from(text.text()).with_extension("pdf");
-            let pages: Vec<i32> = (0..crate::pdfparse::pdf_pages_count(&pdffile)).map(|i| i+1).collect();
-            let scanner = crate::synctex::Scanner::from_output(&pdffile, None);
-            let lines = scanner.get_lines(&pages);
-                window.slides().remove_all();
-                bc.slides().enumerate().for_each(|(_, s)| {
-            let sob = SlideObject::new(s);
+		    window.imp().preamble.replace(bc.preamble().to_string());
+		    let pdffile = PathBuf::from(text.text()).with_extension("pdf");
+		    let pages: Vec<i32> = (0..crate::pdfparse::pdf_pages_count(&pdffile)).map(|i| i+1).collect();
+		    let scanner = crate::synctex::Scanner::from_output(&pdffile, None);
+		    let lines = scanner.get_lines(&pages);
+                    window.slides().remove_all();
+                    bc.slides().enumerate().for_each(|(_, s)| {
+			let sob = SlideObject::new(s);
 
-            let page = lines.iter().enumerate().filter_map(|(i, (_, l))| {
-                let s = sob.linestart();
-                let e = sob.lineend();
-                if (s..=e).contains(l) {
-                Some(i)
-                }else{
-                None
+			let page = lines.iter().enumerate().filter_map(|(i, (_, l))| {
+			    let s = sob.linestart();
+			    let e = sob.lineend();
+			    if (s..=e).contains(l) {
+				Some(i)
+			    }else{
+				None
+			    }
+			}).last();
+			if let Some(page) = page {
+			    sob.set_image(pdfparse::get_thumbnail(&pdffile, page));
+			}
+			window.slides().append(&sob)
+                    });
                 }
-            }).last();
-            if let Some(page) = page {
-                sob.set_image(pdfparse::get_thumbnail(&pdffile, page));
-            }
-                window.slides().append(&sob)
-                });
-                }
-                }));
+            }));
 
         // TEMP for testing
         self.imp()

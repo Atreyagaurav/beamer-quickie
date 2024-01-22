@@ -2,6 +2,7 @@ use cairo;
 use lazy_static::lazy_static;
 use poppler;
 use std::collections::hash_map::DefaultHasher;
+use std::fs::File;
 use std::hash::{Hash, Hasher};
 use std::{
     collections::HashMap,
@@ -10,7 +11,9 @@ use std::{
 lazy_static! {
     pub static ref CACHE_DIR: PathBuf = {
         let d = std::env::temp_dir().join("beamer-quickie");
-        std::fs::create_dir_all(&d).unwrap();
+        if !d.exists() {
+            std::fs::create_dir(&d).unwrap();
+        }
         d
     };
 }
@@ -33,7 +36,17 @@ pub fn get_thumbnail(path: &Path, page: usize) -> PathBuf {
 }
 
 fn older_than(thumb: &Path, pdf: &Path) -> bool {
-    false
+    let pdfmeta = File::open(pdf).unwrap().metadata().unwrap();
+    let pdftime = pdfmeta
+        .modified()
+        .ok()
+        .unwrap_or(pdfmeta.created().unwrap());
+    let thumbmeta = File::open(thumb).unwrap().metadata().unwrap();
+    let thumbtime = thumbmeta
+        .modified()
+        .ok()
+        .unwrap_or(thumbmeta.created().unwrap());
+    pdftime > thumbtime
 }
 
 fn generate_thumb(pdf: &Path, page: usize, path: &Path) {
