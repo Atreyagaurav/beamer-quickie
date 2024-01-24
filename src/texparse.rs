@@ -1,4 +1,3 @@
-use lazy_static::lazy_static;
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 use std::slice::Iter;
@@ -26,19 +25,19 @@ impl ToString for BeamerContents {
         contents.push_str(&self.preamble);
         self.slides.iter().filter(|s| s.include).for_each(|s| {
             contents.push_str(&s.content);
-            contents.push('\n');
+            contents.push_str("\n\n");
         });
         contents.push_str(APPENDIX);
-        contents.push('\n');
+        contents.push_str("\n\n");
         self.appendix.iter().filter(|s| s.include).for_each(|s| {
             contents.push_str(&s.content);
-            contents.push('\n');
+            contents.push_str("\n\n");
         });
         contents.push_str(END_DOCUMENT);
-        contents.push('\n');
+        contents.push_str("\n\n");
         self.unused.iter().filter(|s| s.include).for_each(|s| {
             contents.push_str(&s.content);
-            contents.push('\n');
+            contents.push_str("\n\n");
         });
         contents
     }

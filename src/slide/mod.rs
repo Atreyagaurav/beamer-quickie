@@ -25,7 +25,7 @@ impl SlideObject {
     }
 }
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct SlideData {
     pub include: bool,
     pub linestart: i32,

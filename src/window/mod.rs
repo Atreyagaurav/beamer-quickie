@@ -2,12 +2,14 @@ mod imp;
 
 use glib::{clone, Object};
 use gtk::subclass::prelude::*;
-use gtk::{gio, glib, Application, NoSelection, SignalListItemFactory};
+use gtk::{gio, glib, Application, NoSelection, ResponseType, SignalListItemFactory};
 use gtk::{prelude::*, ListItem};
+use std::cell::RefCell;
 use std::path::PathBuf;
+use std::rc::Rc;
 
 use crate::pdfparse;
-use crate::slide::SlideObject;
+use crate::slide::{SlideData, SlideObject};
 use crate::slide_row::SlideRow;
 use crate::texparse::BeamerContents;
 
@@ -47,6 +49,7 @@ impl Window {
         // Wrap model with selection and pass it to the list view
         let selection_model = NoSelection::new(Some(self.slides()));
         self.imp().lv_slides.set_model(Some(&selection_model));
+        self.imp().current_slide_content.replace("Test".to_string());
     }
 
     fn setup_callbacks(&self) {
@@ -71,15 +74,11 @@ impl Window {
         self.imp()
             .btn_save
             .connect_clicked(clone!(@weak self as window => move |_| {
-                    let preamble =  window.imp().preamble.borrow().clone();
-
-            //     let slides = window.slides().iter::<ListItem>().map(|s| s.unwrap()
-            //             .item()
-            //             .and_downcast::<SlideObject>()
-            //             .expect("The item has to be an `SlideObject`.").content()).collect();
-            //     let beamer = BeamerContents::new(preamble, slides, vec![], vec![]);
-            // println!("{}", beamer.to_string());
-                }));
+                        let preamble =  window.imp().preamble.borrow().clone();
+		let slides: Vec<SlideData> = window.slides().iter::<SlideObject>().map(|s| s.unwrap().content().to_string()).map(|s| SlideData::new(true, 0, 0, s, None)).collect();
+		let beamer = BeamerContents::new(preamble, slides, vec![], vec![]);
+		println!("{}", beamer.to_string());
+                    }));
 
         self.imp()
             .txt_browse
@@ -114,10 +113,59 @@ impl Window {
                 }
             }));
 
+        self.imp()
+            .btn_save_new
+            .connect_clicked(clone!(@weak self as window => move |_| {
+            window.open_editor(&window.imp().current_slide_content);
+                }));
+
         // TEMP for testing
         self.imp()
             .txt_browse
             .set_text("/home/gaurav/work/presentations/ms-thesis/slides.tex");
+    }
+
+    pub fn open_editor(&self, content: &Rc<RefCell<String>>) {
+        //     let editor = gtk::Dialog::builder()
+        //         .default_height(500)
+        //         .default_width(500)
+        //         .title("Edit Frame")
+        //         .build();
+
+        //     let scroll = gtk::ScrolledWindow::builder()
+        //         .hexpand(true)
+        //         .vexpand(true)
+        //         .build();
+        //     let text = gtk::TextView::builder().hexpand(true).vexpand(true).build();
+        //     let btn_accept = gtk::Button::builder().label("Accept").build();
+        //     let btn_cancel = gtk::Button::builder().label("Cancel").build();
+        //     text.buffer().set_text(&content.borrow());
+        //     scroll.set_child(Some(&text));
+        //     editor.set_child(Some(&scroll));
+        //     editor.add_action_widget(&btn_accept, ResponseType::Accept);
+        //     editor.add_action_widget(&btn_accept, ResponseType::Cancel);
+
+        //     editor.set_transient_for(Some(self));
+        //     editor.set_modal(false);
+
+        //     editor.connect_close_request(clone!(@weak self as window => @default-panic,  move |_| {
+        //     window.set_sensitive(true);
+        //     glib::Propagation::Proceed
+        //     }));
+        //     // self.set_sensitive(false);
+        //     editor.connect_response(
+        //         clone!(@weak self as window, @weak text, @weak content => move |_, res|{
+        //             match res {
+        //             ResponseType::Accept => {
+        //                 let buf = text.buffer();
+        //             content.replace(buf.text(&buf.start_iter(), &buf.end_iter(), true)
+        //                     .to_string());
+        //             }
+        //             _ => (),
+        //             }
+        //         println!("{}", window.imp().current_slide_content.borrow());
+        //             }),
+        //     );
     }
 
     // fn new_slide(&self) {

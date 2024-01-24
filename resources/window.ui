@@ -38,29 +38,47 @@
 	  </object>
 	</child>
 	<child>
-	  <object class="GtkScrolledWindow">
-	    <property name="hexpand">True</property>
-	    <property name="vexpand">True</property>
-	    <!-- location for the slides listview -->
-	    <child>
-	      <object class="GtkListView" id="lv_slides">
+	  <object class="GtkPaned">
+	    <property name="start-child">
+	      <object class="GtkScrolledWindow">
+		<property name="hexpand">True</property>
+		<property name="vexpand">True</property>
+		<!-- location for the slides listview -->
+		<child>
+		  <object class="GtkListView" id="lv_slides">
+		  </object>
+		</child>
 	      </object>
-	    </child>
-	  </object>
-	</child>
+	    </property>
+	    <property name="end-child">
+              <object class="GtkScrolledWindow">
+		<property name="hexpand">True</property>
+		<property name="vexpand">True</property>
+		<child>
+		  <object class="GtkTextView" id="tv_frame">
+		    <property name="vexpand">1</property>
+		    <property name="focusable">1</property>
+		    <property name="input-purpose">terminal</property>
+		    <property name="monospace">1</property>
+		  </object>
+		</child>
+              </object>
+            </property>
+          </object>
+        </child>
         <child>
           <object class="GtkBox">
 	    <property name="spacing">10</property>
-            <child>
-              <object class="GtkButton" id="btn_save">
+	    <child>
+	      <object class="GtkButton" id="btn_save">
 		<property name="label">Save</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="btn_save_new">
+	      </object>
+	    </child>
+	    <child>
+	      <object class="GtkButton" id="btn_save_new">
 		<property name="label">Save New</property>
-              </object>
-            </child>
+	      </object>
+	    </child>
           </object>
         </child>
 	

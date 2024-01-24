@@ -1,4 +1,5 @@
 use std::cell::RefCell;
+use std::rc::Rc;
 
 use glib::subclass::InitializingObject;
 use gtk::prelude::ObjectExt;
@@ -16,9 +17,14 @@ pub struct Window {
     #[template_child]
     pub btn_save: TemplateChild<gtk::Button>,
     #[template_child]
+    pub btn_save_new: TemplateChild<gtk::Button>,
+    #[template_child]
     pub lv_slides: TemplateChild<gtk::ListView>,
+    #[template_child]
+    pub tv_frame: TemplateChild<gtk::TextView>,
     pub preamble: RefCell<String>,
     pub slides: RefCell<Option<gio::ListStore>>,
+    pub current_slide_content: Rc<RefCell<String>>,
 }
 
 // The central trait for subclassing a GObject
