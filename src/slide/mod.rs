@@ -21,7 +21,79 @@ impl SlideObject {
             .property("label", slide.label.to_string())
             .property("content", slide.content.to_string())
             .property("image", slide.image.clone())
+            .property("slidetype", slide.slidetype)
             .build()
+    }
+}
+
+#[derive(Default, Debug, Copy, Clone)]
+pub enum SlideType {
+    #[default]
+    Main,
+    Appendix,
+    Unused,
+}
+
+impl ToString for SlideType {
+    fn to_string(&self) -> String {
+        match self {
+            SlideType::Main => "Main",
+            SlideType::Appendix => "Appendix",
+            SlideType::Unused => "Unused",
+        }
+        .to_string()
+    }
+}
+
+// impl glib::value::ToValue for SlideType {
+//     fn to_value(&self) -> glib::value::Value {
+//         match self {
+//             SlideType::Main => glib::value::Value::from(0),
+//             SlideType::Appendix => glib::value::Value::from(1),
+//             SlideType::Unused => glib::value::Value::from(2),
+//         }
+//     }
+
+//     fn value_type(&self) -> glib::Type {
+//         glib::Type::ENUM
+//     }
+// }
+
+// impl glib::HasParamSpec for SlideType {
+//     type ParamSpec = u32;
+//     type SetValue = Self;
+//     type BuilderFn = fn(&str) -> u32;
+
+//     fn param_spec_builder() -> Self::BuilderFn {
+//         SlideType::str_to_num
+//     }
+// }
+
+impl SlideType {
+    pub fn from_num(n: u8) -> Result<Self, ()> {
+        match n {
+            0 => Ok(SlideType::Main),
+            1 => Ok(SlideType::Appendix),
+            2 => Ok(SlideType::Unused),
+            _ => Err(()),
+        }
+    }
+
+    pub fn to_num(&self) -> u8 {
+        match self {
+            SlideType::Main => 0,
+            SlideType::Appendix => 1,
+            SlideType::Unused => 2,
+        }
+    }
+
+    pub fn str_to_num(input: &str) -> u8 {
+        match input {
+            "Main" => 0,
+            "Appendix" => 1,
+            "Unused" => 2,
+            _ => panic!("not implemented"),
+        }
     }
 }
 
@@ -33,6 +105,7 @@ pub struct SlideData {
     pub content: String,
     pub label: String,
     pub image: PathBuf,
+    pub slidetype: u8,
 }
 
 impl SlideData {
@@ -42,6 +115,7 @@ impl SlideData {
         lineend: i32,
         content: String,
         image: Option<PathBuf>,
+        slidetype: u8,
     ) -> Self {
         Self {
             include,
@@ -50,6 +124,7 @@ impl SlideData {
             label: create_label(&content),
             content,
             image: image.unwrap_or(PathBuf::from("resources/icons/slide.svg")),
+            slidetype,
         }
     }
 }

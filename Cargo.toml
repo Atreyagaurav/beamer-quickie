@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.79"
 cairo-rs = { version = "0.18.5", features = ["svg", "v1_16"] }
+gdk = { version = "0.7.3", package = "gdk4", features = ["v4_12"] }
 gtk = { version = "0.7.3", package = "gtk4", features = ["v4_12"] }
 itertools = "0.12.0"
 lazy_static = "1.4.0"

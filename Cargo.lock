@@ -29,6 +29,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "cairo-rs",
+ "gdk4",
  "glib-build-tools",
  "gtk4",
  "itertools",

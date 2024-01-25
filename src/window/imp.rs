@@ -15,9 +15,11 @@ pub struct Window {
     #[template_child]
     pub btn_browse: TemplateChild<gtk::Button>,
     #[template_child]
-    pub btn_save: TemplateChild<gtk::Button>,
+    pub cb_preamble: TemplateChild<gtk::CheckButton>,
     #[template_child]
-    pub btn_save_new: TemplateChild<gtk::Button>,
+    pub btn_preview: TemplateChild<gtk::Button>,
+    #[template_child]
+    pub btn_copy: TemplateChild<gtk::Button>,
     #[template_child]
     pub lv_slides: TemplateChild<gtk::ListView>,
     #[template_child]

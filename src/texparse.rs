@@ -4,7 +4,7 @@ use std::slice::Iter;
 use std::string::ToString;
 use std::{fs::read_to_string, path::Path};
 
-use crate::slide::SlideData;
+use crate::slide::{SlideData, SlideType};
 
 pub const BEGIN_FRAME: &'static str = r"\begin{frame}";
 pub const END_FRAME: &'static str = r"\end{frame}";
@@ -50,6 +50,46 @@ impl BeamerContents {
         appendix: Vec<SlideData>,
         unused: Vec<SlideData>,
     ) -> Self {
+        let slides = slides
+            .into_iter()
+            .map(|mut s| {
+                s.slidetype = SlideType::Main.to_num();
+                s
+            })
+            .collect();
+        let appendix = appendix
+            .into_iter()
+            .map(|mut s| {
+                s.slidetype = SlideType::Appendix.to_num();
+                s
+            })
+            .collect();
+        let unused = unused
+            .into_iter()
+            .map(|mut s| {
+                s.slidetype = SlideType::Unused.to_num();
+                s
+            })
+            .collect();
+        Self {
+            preamble,
+            slides,
+            appendix,
+            unused,
+        }
+    }
+
+    pub fn from_slides(preamble: String, all_slides: Vec<SlideData>) -> BeamerContents {
+        let mut slides = Vec::with_capacity(all_slides.len());
+        let mut appendix = Vec::with_capacity(all_slides.len());
+        let mut unused = Vec::with_capacity(all_slides.len());
+        for s in all_slides {
+            match SlideType::from_num(s.slidetype).unwrap() {
+                SlideType::Main => slides.push(s),
+                SlideType::Appendix => appendix.push(s),
+                SlideType::Unused => unused.push(s),
+            }
+        }
         Self {
             preamble,
             slides,
@@ -91,12 +131,12 @@ impl BeamerContents {
 
         let mut appendix = Vec::new();
         let slides = if let Some(a) = contents[p..].find(APPENDIX) {
-            appendix = get_frames(&contents, a + p, end);
-            get_frames(&contents, p, a + p)
+            appendix = get_frames(&contents, a + p, end, SlideType::Appendix);
+            get_frames(&contents, p, a + p, SlideType::Main)
         } else {
-            get_frames(&contents, p, end)
+            get_frames(&contents, p, end, SlideType::Main)
         };
-        let unused = get_frames(&contents, end, contents.len());
+        let unused = get_frames(&contents, end, contents.len(), SlideType::Unused);
         Ok(BeamerContents {
             preamble,
             slides,
@@ -112,7 +152,12 @@ fn contents_hash(contents: &str) -> u64 {
     s.finish()
 }
 
-fn get_frames(contents: &str, mut start: usize, end: usize) -> Vec<SlideData> {
+fn get_frames(
+    contents: &str,
+    mut start: usize,
+    end: usize,
+    slidetype: SlideType,
+) -> Vec<SlideData> {
     let mut slides = Vec::new();
     while let Some(p) = contents[start..].find(BEGIN_FRAME) {
         let p = contents[..(p + start)].rfind('\n').unwrap() + 1;
@@ -131,6 +176,7 @@ fn get_frames(contents: &str, mut start: usize, end: usize) -> Vec<SlideData> {
             line_end as i32,
             contents[p..slide_end].to_string(),
             None,
+            slidetype.to_num(),
         );
         slides.push(s);
         start = slide_end;

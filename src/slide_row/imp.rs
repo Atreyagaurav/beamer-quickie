@@ -13,15 +13,7 @@ pub struct SlideRow {
     #[template_child]
     pub lb_slide: TemplateChild<gtk::Label>,
     #[template_child]
-    pub btn_slide_edit: TemplateChild<gtk::Button>,
-    #[template_child]
-    pub btn_slide_top: TemplateChild<gtk::Button>,
-    #[template_child]
-    pub btn_slide_up: TemplateChild<gtk::Button>,
-    #[template_child]
-    pub btn_slide_down: TemplateChild<gtk::Button>,
-    #[template_child]
-    pub btn_slide_bottom: TemplateChild<gtk::Button>,
+    pub dd_slide: TemplateChild<gtk::DropDown>,
     #[template_child]
     pub img_slide: TemplateChild<gtk::Image>,
     // Vector holding the bindings to properties of `TaskObject`

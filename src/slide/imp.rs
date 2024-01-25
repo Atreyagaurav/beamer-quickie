@@ -1,4 +1,3 @@
-use std::cell::Ref;
 use std::cell::RefCell;
 use std::path::PathBuf;
 
@@ -19,6 +18,7 @@ pub struct SlideObject {
     #[property(name = "content", get, set, type = String, member = content)]
     #[property(name = "label", get, set, type = String, member = label)]
     #[property(name = "image", get, set, type = PathBuf, member = image)]
+    #[property(name = "slidetype", get, set, type = u8, member = slidetype)]
     pub data: RefCell<SlideData>,
 }
 
