@@ -11,6 +11,24 @@
         </child>
         <child type="tag">
           <object class="GtkTextTag">
+	    <property name="name">tag_begin_frame</property>
+            <property name="style">italic</property>
+            <property name="overline">single</property>
+            <property name="size-points">16</property>
+            <property name="background-rgba">rgba(0,0,.5,.4)</property>
+          </object>
+        </child>
+        <child type="tag">
+          <object class="GtkTextTag">
+	    <property name="name">tag_end_frame</property>
+            <property name="style">italic</property>
+            <property name="underline">single</property>
+            <property name="size-points">14</property>
+            <property name="background-rgba">rgba(0,0,.3,.2)</property>
+          </object>
+        </child>
+        <child type="tag">
+          <object class="GtkTextTag">
 	    <property name="name">tag_comment</property>
             <property name="foreground">gray</property>
             <property name="style">italic</property>
@@ -71,6 +89,12 @@
 	<child>
 	  <object class="GtkBox">
 	    <property name="spacing">10</property>
+	    <child>
+	      <object class="GtkCheckButton" id="cb_selectall">
+		<property name="label">Select/Unselect All</property>
+		<property name="active">1</property>
+	      </object>
+	    </child>
 	    <child>
 	      <object class="GtkCheckButton" id="cb_preamble">
 		<property name="label">Slides Only</property>

@@ -71,6 +71,7 @@ fn generate_thumb(pdf: &Path, page: usize, path: &Path) {
     surface.flush();
 }
 
+// plans is to use this when SyncTeX is not available
 pub fn frames_pages(path: &Path) -> Vec<usize> {
     let file = format!("file:{}", path.to_string_lossy());
     let file = poppler::Document::from_file(&file, None).unwrap();

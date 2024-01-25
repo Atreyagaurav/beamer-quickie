@@ -1,5 +1,3 @@
-use std::collections::hash_map::DefaultHasher;
-use std::hash::{Hash, Hasher};
 use std::slice::Iter;
 use std::string::ToString;
 use std::{fs::read_to_string, path::Path};
@@ -44,40 +42,40 @@ impl ToString for BeamerContents {
 }
 
 impl BeamerContents {
-    pub fn new(
-        preamble: String,
-        slides: Vec<SlideData>,
-        appendix: Vec<SlideData>,
-        unused: Vec<SlideData>,
-    ) -> Self {
-        let slides = slides
-            .into_iter()
-            .map(|mut s| {
-                s.slidetype = SlideType::Main.to_num();
-                s
-            })
-            .collect();
-        let appendix = appendix
-            .into_iter()
-            .map(|mut s| {
-                s.slidetype = SlideType::Appendix.to_num();
-                s
-            })
-            .collect();
-        let unused = unused
-            .into_iter()
-            .map(|mut s| {
-                s.slidetype = SlideType::Unused.to_num();
-                s
-            })
-            .collect();
-        Self {
-            preamble,
-            slides,
-            appendix,
-            unused,
-        }
-    }
+    // pub fn new(
+    //     preamble: String,
+    //     slides: Vec<SlideData>,
+    //     appendix: Vec<SlideData>,
+    //     unused: Vec<SlideData>,
+    // ) -> Self {
+    //     let slides = slides
+    //         .into_iter()
+    //         .map(|mut s| {
+    //             s.slidetype = SlideType::Main.to_num();
+    //             s
+    //         })
+    //         .collect();
+    //     let appendix = appendix
+    //         .into_iter()
+    //         .map(|mut s| {
+    //             s.slidetype = SlideType::Appendix.to_num();
+    //             s
+    //         })
+    //         .collect();
+    //     let unused = unused
+    //         .into_iter()
+    //         .map(|mut s| {
+    //             s.slidetype = SlideType::Unused.to_num();
+    //             s
+    //         })
+    //         .collect();
+    //     Self {
+    //         preamble,
+    //         slides,
+    //         appendix,
+    //         unused,
+    //     }
+    // }
 
     pub fn from_slides(preamble: String, all_slides: Vec<SlideData>) -> BeamerContents {
         let mut slides = Vec::with_capacity(all_slides.len());
@@ -96,16 +94,6 @@ impl BeamerContents {
             appendix,
             unused,
         }
-    }
-
-    pub fn single_frame_tex(&self, frame: &str) -> String {
-        let mut contents = String::new();
-        contents.push_str(&self.preamble);
-        contents.push_str(frame);
-        contents.push('\n');
-        contents.push_str(END_DOCUMENT);
-        contents.push('\n');
-        contents
     }
 
     pub fn preamble(&self) -> &str {
@@ -144,12 +132,6 @@ impl BeamerContents {
             unused,
         })
     }
-}
-
-fn contents_hash(contents: &str) -> u64 {
-    let mut s = DefaultHasher::new();
-    contents.hash(&mut s);
-    s.finish()
 }
 
 fn get_frames(

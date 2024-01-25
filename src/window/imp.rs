@@ -2,9 +2,8 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use glib::subclass::InitializingObject;
-use gtk::prelude::ObjectExt;
 use gtk::subclass::prelude::*;
-use gtk::{gio, glib, CompositeTemplate, Entry, ListView};
+use gtk::{gio, glib, CompositeTemplate};
 
 // Object holding the state
 #[derive(CompositeTemplate, Default)]
@@ -14,6 +13,8 @@ pub struct Window {
     pub txt_browse: TemplateChild<gtk::Text>,
     #[template_child]
     pub btn_browse: TemplateChild<gtk::Button>,
+    #[template_child]
+    pub cb_selectall: TemplateChild<gtk::CheckButton>,
     #[template_child]
     pub cb_preamble: TemplateChild<gtk::CheckButton>,
     #[template_child]

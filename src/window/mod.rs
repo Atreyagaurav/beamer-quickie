@@ -70,6 +70,15 @@ impl Window {
                 }));
 
         self.imp()
+            .cb_selectall
+            .connect_active_notify(clone!(@weak self as window => move |sall| {
+            let include = sall.is_active();
+                window.slides()
+                .iter::<SlideObject>()
+                .for_each(|s| s.unwrap().set_include(include));
+                            }));
+
+        self.imp()
             .btn_preview
             .connect_clicked(clone!(@weak self as window => move |_| {
             let text = window.get_contents();
@@ -123,37 +132,54 @@ impl Window {
             .tv_frame
             .buffer()
             .connect_changed(clone!(@weak self as window => move |_| {
-            let tb = window.imp().tv_frame.buffer();
-                    let mut prev = tb.start_iter();
-                let mut point = tb.start_iter();
-                while point.forward_char() {
-                    match prev.char() {
-                        '[' | ']' => {
-                        tb.apply_tag_by_name("tag_brackets", &prev, &point);
-                        },
-                        '{' | '}' => {
-                        tb.apply_tag_by_name("tag_braces", &prev, &point);
-                        },
-                        '\\' => {
-                prev = point;
-                match point.char() {
-                    '%' |'\\' => tb.apply_tag_by_name("tag_comment", &prev, &point),
-                _ => {
-                    while point.forward_char() && point.char().is_ascii_alphabetic(){};
+                    let tb = window.imp().tv_frame.buffer();
+                            let mut prev = tb.start_iter();
+                        let mut point = tb.start_iter();
+                        while point.forward_char() {
+                            match prev.char() {
+                                '[' | ']' => {
+                                tb.apply_tag_by_name("tag_brackets", &prev, &point);
+                                },
+                                '{' | '}' => {
+                                tb.apply_tag_by_name("tag_braces", &prev, &point);
+                                },
+                                '\\' => {
+                        prev = point;
+                        match point.char() {
+                            '%' |'\\' => {point.forward_char();},
+                        _ => {
+                            while point.forward_char() && point.char().is_ascii_alphabetic(){};
+                    let cmd = tb.text(&prev, &point, true);
+                    if cmd == "begin" || cmd == "end" {
+                    let temp = point;
+                while point.forward_char() && point.char() != '}'{};
+                point.forward_char();
+                        if tb.text(&temp, &point, true) == "{frame}" {
+                while (point.char() != '%' && point.char() != '\n') && point.forward_char(){};
+                let mut sol = prev.clone();
+                sol.backward_char();
+                if cmd == "begin"{
+                    tb.apply_tag_by_name("tag_begin_frame", &sol, &point);
+                } else {
+                    tb.apply_tag_by_name("tag_end_frame", &sol, &point);
+                }
+                        }
+                point = temp;
+            }
                     tb.apply_tag_by_name("tag_command", &prev, &point);
-                }
-                }
+                        }
+                        }
+                                },
+                    '%' => {
+                        while point.forward_char() && point.char() != '\n'{};
+                            tb.apply_tag_by_name("tag_comment", &prev, &point);
                         },
-            '%' => {
-                while point.forward_char() && point.char() != '\n'{};
-                    tb.apply_tag_by_name("tag_comment", &prev, &point);
-                },
-                _ => (),
-                    };
+                        _ => (),
+                            };
 
-                            prev = point;
-                }
-                            }));
+                                    prev = point;
+                        }
+                                    }));
 
         // TEMP for testing
         self.imp()

@@ -86,15 +86,6 @@ impl SlideType {
             SlideType::Unused => 2,
         }
     }
-
-    pub fn str_to_num(input: &str) -> u8 {
-        match input {
-            "Main" => 0,
-            "Appendix" => 1,
-            "Unused" => 2,
-            _ => panic!("not implemented"),
-        }
-    }
 }
 
 #[derive(Default, Debug)]
