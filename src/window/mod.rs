@@ -81,6 +81,7 @@ impl Window {
             .connect_clicked(clone!(@weak self as window => move |_| {
                     let text = window.get_contents();
             let display = gdk::Display::default().unwrap();
+            window.imp().tv_frame.buffer().set_text(&text);
             let clipboard = display.clipboard();
                 clipboard.set_text(&text);
                                 }));
@@ -91,7 +92,7 @@ impl Window {
                 if let Ok(bc) =
                     BeamerContents::load(text.text())
                 {
-
+		    window.imp().tv_frame.buffer().set_text(&bc.to_string());
 		    window.imp().preamble.replace(bc.preamble().to_string());
 		    let pdffile = PathBuf::from(text.text()).with_extension("pdf");
 		    let pages: Vec<i32> = (0..crate::pdfparse::pdf_pages_count(&pdffile)).map(|i| i+1).collect();
@@ -117,6 +118,42 @@ impl Window {
                     });
                 }
             }));
+
+        self.imp()
+            .tv_frame
+            .buffer()
+            .connect_changed(clone!(@weak self as window => move |_| {
+            let tb = window.imp().tv_frame.buffer();
+                    let mut prev = tb.start_iter();
+                let mut point = tb.start_iter();
+                while point.forward_char() {
+                    match prev.char() {
+                        '[' | ']' => {
+                        tb.apply_tag_by_name("tag_brackets", &prev, &point);
+                        },
+                        '{' | '}' => {
+                        tb.apply_tag_by_name("tag_braces", &prev, &point);
+                        },
+                        '\\' => {
+                prev = point;
+                match point.char() {
+                    '%' |'\\' => tb.apply_tag_by_name("tag_comment", &prev, &point),
+                _ => {
+                    while point.forward_char() && point.char().is_ascii_alphabetic(){};
+                    tb.apply_tag_by_name("tag_command", &prev, &point);
+                }
+                }
+                        },
+            '%' => {
+                while point.forward_char() && point.char() != '\n'{};
+                    tb.apply_tag_by_name("tag_comment", &prev, &point);
+                },
+                _ => (),
+                    };
+
+                            prev = point;
+                }
+                            }));
 
         // TEMP for testing
         self.imp()

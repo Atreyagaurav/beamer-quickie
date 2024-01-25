@@ -1,5 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
+  <object class="GtkTextBuffer" id="buf_frame">
+    <property name="tag-table">
+      <object class="GtkTextTagTable">
+        <child type="tag">
+          <object class="GtkTextTag">
+	    <property name="name">tag_command</property>
+            <property name="foreground">blue</property>
+          </object>
+        </child>
+        <child type="tag">
+          <object class="GtkTextTag">
+	    <property name="name">tag_comment</property>
+            <property name="foreground">gray</property>
+            <property name="style">italic</property>
+          </object>
+        </child>
+        <child type="tag">
+          <object class="GtkTextTag">
+	    <property name="name">tag_braces</property>
+            <property name="foreground">pink</property>
+          </object>
+        </child>
+        <child type="tag">
+          <object class="GtkTextTag">
+	    <property name="name">tag_brackets</property>
+            <property name="foreground">red</property>
+          </object>
+        </child>
+      </object>
+    </property>
+  </object>
   <template class="BeamerQuickieWindow" parent="GtkApplicationWindow">
     <property name="title" translatable="1">Beamer Quickie</property>
     <property name="default-width">500</property>
@@ -82,6 +113,7 @@
 		    <property name="focusable">1</property>
 		    <property name="input-purpose">terminal</property>
 		    <property name="monospace">1</property>
+		    <property name="buffer">buf_frame</property>
 		  </object>
 		</child>
 	      </object>
