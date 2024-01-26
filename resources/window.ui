@@ -58,6 +58,7 @@
 	<child>
 	  <object class="GtkBox">
 	    <property name="spacing">10</property>
+	    <property name="halign">center</property>
 	    <child>
 	      <object class="GtkCheckButton" id="cb_selectall">
 		<property name="label">Select/Unselect All</property>
@@ -67,16 +68,19 @@
 	    <child>
 	      <object class="GtkCheckButton" id="cb_preamble">
 		<property name="label">Slides Only</property>
-	      </object>
-	    </child>
-	    <child>
-	      <object class="GtkButton" id="btn_copy">
-		<property name="label">Copy</property>
+		<property name="tooltip-text">Do not include the preamble and other commands</property>
 	      </object>
 	    </child>
 	    <child>
 	      <object class="GtkButton" id="btn_preview">
 		<property name="label">Generate</property>
+		<property name="tooltip-text">Generate text on the Editor from selected slides</property>
+	      </object>
+	    </child>
+	    <child>
+	      <object class="GtkButton" id="btn_copy">
+		<property name="label">Copy</property>
+		<property name="tooltip-text">Copy text on the Editor</property>
 	      </object>
 	    </child>
 	  </object>
