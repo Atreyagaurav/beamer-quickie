@@ -2,6 +2,7 @@ use std::slice::Iter;
 use std::string::ToString;
 use std::{fs::read_to_string, path::Path};
 
+use crate::pdfparse;
 use crate::slide::{SlideData, SlideType};
 
 pub const BEGIN_FRAME: &'static str = r"\begin{frame}";
@@ -113,7 +114,7 @@ impl BeamerContents {
     pub fn load<P: AsRef<Path>>(path: P) -> anyhow::Result<BeamerContents> {
         // everything till the first frame is considered preamle for
         // this use case
-        let contents = read_to_string(path)?;
+        let contents = read_to_string(&path)?;
         let p = contents.find(BEGIN_DOCUMENT).unwrap() + BEGIN_DOCUMENT.len();
         let preamble = contents[0..p].to_string();
         let end = contents.find(END_DOCUMENT).unwrap();
@@ -126,12 +127,61 @@ impl BeamerContents {
             get_frames(&contents, p, end, SlideType::Main)
         };
         let unused = get_frames(&contents, end, contents.len(), SlideType::Unused);
-        Ok(BeamerContents {
+        let mut bc = BeamerContents {
             preamble,
             slides,
             appendix,
             unused,
-        })
+        };
+        let pdffile = path.as_ref().with_extension("pdf");
+        if pdffile.exists() {
+            if let Some(scanner) = crate::synctex::Scanner::from_output(&pdffile, None) {
+                // gets the corresponding pages by using the syntex edit
+                let pages: Vec<i32> = (0..pdfparse::pdf_pages_count(&pdffile))
+                    .map(|x| x + 1)
+                    .collect();
+                let lines = scanner.get_lines(&pages);
+                let get_page = |sob: &SlideData| {
+                    lines
+                        .iter()
+                        .enumerate()
+                        .filter_map(|(i, (_, l))| {
+                            let s = sob.linestart;
+                            let e = sob.lineend;
+                            if (s..=e).contains(l) {
+                                Some(i)
+                            } else {
+                                None
+                            }
+                        })
+                        .last()
+                };
+
+                let set_thumbnail = |sob: &mut SlideData| {
+                    if let Some(page) = get_page(&sob) {
+                        sob.image = pdfparse::get_thumbnail(&pdffile, page);
+                    }
+                };
+                bc.slides.iter_mut().for_each(set_thumbnail);
+                bc.appendix.iter_mut().for_each(set_thumbnail);
+                // shouldn't have anything in the PDF but anyway,
+                bc.unused.iter_mut().for_each(set_thumbnail);
+            } else {
+                // assumes every time page has a different page label,
+                // it's a different frame; works well unless you have
+                // `allowbreaks` in frame options
+                let pages = pdfparse::frames_pages(&pdffile);
+                bc.slides
+                    .iter_mut()
+                    .chain(bc.appendix.iter_mut())
+                    .filter(|s| s.include)
+                    .zip(pages)
+                    .for_each(|(sob, page)| {
+                        sob.image = pdfparse::get_thumbnail(&pdffile, page);
+                    });
+            }
+        }
+        Ok(bc)
     }
 }
 

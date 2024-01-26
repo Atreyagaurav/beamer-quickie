@@ -4,10 +4,7 @@ use poppler;
 use std::collections::hash_map::DefaultHasher;
 use std::fs::File;
 use std::hash::{Hash, Hasher};
-use std::{
-    collections::HashMap,
-    path::{Path, PathBuf},
-};
+use std::path::{Path, PathBuf};
 lazy_static! {
     pub static ref CACHE_DIR: PathBuf = {
         let d = std::env::temp_dir().join("beamer-quickie");
@@ -71,27 +68,33 @@ fn generate_thumb(pdf: &Path, page: usize, path: &Path) {
     surface.flush();
 }
 
-// plans is to use this when SyncTeX is not available
 pub fn frames_pages(path: &Path) -> Vec<usize> {
     let file = format!("file:{}", path.to_string_lossy());
     let file = poppler::Document::from_file(&file, None).unwrap();
     let npage = file.n_pages();
-    let labels: Vec<String> = (0..npage)
-        .map(|i| {
-            file.page(i)
-                .unwrap()
-                .label()
-                .map(|l| l.to_string())
-                .unwrap_or(i.to_string())
-        })
-        .collect();
-    let mut frames: HashMap<String, usize> = HashMap::new();
-    for (i, l) in labels.iter().enumerate() {
-        if !frames.contains_key(l) {
-            frames.insert(l.to_string(), i);
+    let mut labels = (0..npage).map(|i| {
+        file.page(i)
+            .unwrap()
+            .label()
+            .map(|l| l.to_string())
+            .unwrap_or(i.to_string())
+    });
+    let mut pages: Vec<usize> = Vec::new();
+
+    let mut prev = if let Some(l) = labels.next() {
+        pages.push(0);
+        l
+    } else {
+        return pages;
+    };
+    let mut i = 1;
+    for l in labels {
+        if prev != l {
+            pages.push(i);
+            prev = l;
         }
+
+        i = i + 1;
     }
-    let mut pages: Vec<usize> = frames.values().map(|v| *v).collect();
-    pages.sort();
     pages
 }

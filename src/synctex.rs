@@ -13,8 +13,8 @@ pub struct Scanner {
 // }
 
 impl Scanner {
-    pub fn from_output(output: &Path, dir: Option<&Path>) -> Self {
-        let dir = dir.map(|d| d).unwrap_or(output.parent().unwrap());
+    pub fn from_output(output: &Path, dir: Option<&Path>) -> Option<Self> {
+        let dir = dir.map(|d| d).unwrap_or(output.parent()?);
         let output = CString::new(output.to_string_lossy().as_ref()).unwrap();
         let dir = CString::new(dir.to_string_lossy().as_ref()).unwrap();
         let parse: c_int = 1.into();
@@ -25,7 +25,11 @@ impl Scanner {
                 parse,
             )
         };
-        Self { inner }
+        if inner.is_null() {
+            None
+        } else {
+            Some(Self { inner })
+        }
     }
 
     pub fn edit_query(&self, page: i32, x: f32, y: f32) -> (PathBuf, i32) {

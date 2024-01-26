@@ -7,9 +7,7 @@ use gtk::{prelude::*, ListItem};
 use itertools::Itertools;
 use sourceview5::gtk::prelude::TextBufferExt;
 use sourceview5::gtk::prelude::TextViewExt;
-use std::path::PathBuf;
 
-use crate::pdfparse;
 use crate::slide::{SlideData, SlideObject};
 use crate::slide_row::SlideRow;
 use crate::texparse::BeamerContents;
@@ -105,27 +103,10 @@ impl Window {
                 {
 		    window.imp().tv_frame.buffer().set_text(&bc.to_string());
 		    window.imp().preamble.replace(bc.preamble().to_string());
-		    let pdffile = PathBuf::from(text.text()).with_extension("pdf");
-		    let pages: Vec<i32> = (0..crate::pdfparse::pdf_pages_count(&pdffile)).map(|i| i+1).collect();
-		    let scanner = crate::synctex::Scanner::from_output(&pdffile, None);
-		    let lines = scanner.get_lines(&pages);
                     window.slides().remove_all();
                     bc.slides().chain(bc.appendix()).chain(bc.unused()).enumerate().for_each(|(_, s)| {
 			let sob = SlideObject::new(s);
-
-			let page = lines.iter().enumerate().filter_map(|(i, (_, l))| {
-			    let s = sob.linestart();
-			    let e = sob.lineend();
-			    if (s..=e).contains(l) {
-				Some(i)
-			    }else{
-				None
-			    }
-			}).last();
-			if let Some(page) = page {
-			    sob.set_image(pdfparse::get_thumbnail(&pdffile, page));
-			}
-			window.slides().append(&sob)
+			window.slides().append(&sob);
                     });
                 }
             }));
