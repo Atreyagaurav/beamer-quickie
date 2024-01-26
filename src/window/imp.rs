@@ -4,6 +4,8 @@ use std::rc::Rc;
 use glib::subclass::InitializingObject;
 use gtk::subclass::prelude::*;
 use gtk::{gio, glib, CompositeTemplate};
+use sourceview5::prelude::BufferExt;
+use sourceview5::View;
 
 // Object holding the state
 #[derive(CompositeTemplate, Default)]
@@ -24,7 +26,9 @@ pub struct Window {
     #[template_child]
     pub lv_slides: TemplateChild<gtk::ListView>,
     #[template_child]
-    pub tv_frame: TemplateChild<gtk::TextView>,
+    pub tv_frame: TemplateChild<View>,
+    #[template_child]
+    pub buf_frame: TemplateChild<sourceview5::Buffer>,
     pub preamble: RefCell<String>,
     pub slides: RefCell<Option<gio::ListStore>>,
     pub current_slide_content: Rc<RefCell<String>>,
@@ -52,13 +56,23 @@ impl ObjectImpl for Window {
     fn constructed(&self) {
         // Call "constructed" on parent
         self.parent_constructed();
-
         // Setup
         let obj = self.obj();
         obj.setup_preamble();
         obj.setup_slides();
         obj.setup_callbacks();
         obj.setup_factory();
+
+        obj.imp().buf_frame.set_language(
+            sourceview5::LanguageManager::new()
+                .language("latex")
+                .as_ref(),
+        );
+        obj.imp().buf_frame.set_style_scheme(
+            sourceview5::StyleSchemeManager::new()
+                .scheme("Adwaita-dark")
+                .as_ref(),
+        )
     }
 }
 

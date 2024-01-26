@@ -1,49 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <object class="GtkTextBuffer" id="buf_frame">
+  <object class="GtkSourceBuffer" id="buf_frame">
+    <property name="highlight-matching-brackets">True</property>
+    <property name="highlight-syntax">True</property>
+    <!-- couldn't set language from here -->
+    <!-- <property name="language" id="latex"/> -->
     <property name="tag-table">
       <object class="GtkTextTagTable">
         <child type="tag">
           <object class="GtkTextTag">
-	    <property name="name">tag_command</property>
-            <property name="foreground">blue</property>
-          </object>
-        </child>
-        <child type="tag">
-          <object class="GtkTextTag">
-	    <property name="name">tag_begin_frame</property>
+	    <property name="name">tag_frametitle</property>
             <property name="style">italic</property>
-            <property name="overline">single</property>
             <property name="size-points">16</property>
-            <property name="background-rgba">rgba(0,0,.5,.4)</property>
-          </object>
-        </child>
-        <child type="tag">
-          <object class="GtkTextTag">
-	    <property name="name">tag_end_frame</property>
-            <property name="style">italic</property>
-            <property name="underline">single</property>
-            <property name="size-points">14</property>
-            <property name="background-rgba">rgba(0,0,.3,.2)</property>
-          </object>
-        </child>
-        <child type="tag">
-          <object class="GtkTextTag">
-	    <property name="name">tag_comment</property>
-            <property name="foreground">gray</property>
-            <property name="style">italic</property>
-          </object>
-        </child>
-        <child type="tag">
-          <object class="GtkTextTag">
-	    <property name="name">tag_braces</property>
-            <property name="foreground">pink</property>
-          </object>
-        </child>
-        <child type="tag">
-          <object class="GtkTextTag">
-	    <property name="name">tag_brackets</property>
-            <property name="foreground">red</property>
+            <property name="background-rgba">rgba(.5,.5,1,.7)</property>
           </object>
         </child>
       </object>
@@ -107,7 +76,7 @@
 	    </child>
 	    <child>
 	      <object class="GtkButton" id="btn_preview">
-		<property name="label">Preview</property>
+		<property name="label">Generate</property>
 	      </object>
 	    </child>
 	  </object>
@@ -132,7 +101,7 @@
 		<property name="vexpand">True</property>
 		<property name="max-content-width">400</property>
 		<child>
-		  <object class="GtkTextView" id="tv_frame">
+		  <object class="GtkSourceView" id="tv_frame">
 		    <property name="vexpand">1</property>
 		    <property name="focusable">1</property>
 		    <property name="input-purpose">terminal</property>

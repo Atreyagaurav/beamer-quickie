@@ -5,6 +5,8 @@ use gtk::subclass::prelude::*;
 use gtk::{gio, glib, Application, NoSelection, SignalListItemFactory};
 use gtk::{prelude::*, ListItem};
 use itertools::Itertools;
+use sourceview5::gtk::prelude::TextBufferExt;
+use sourceview5::gtk::prelude::TextViewExt;
 use std::path::PathBuf;
 
 use crate::pdfparse;
@@ -88,12 +90,12 @@ impl Window {
         self.imp()
             .btn_copy
             .connect_clicked(clone!(@weak self as window => move |_| {
-                    let text = window.get_contents();
             let display = gdk::Display::default().unwrap();
-            window.imp().tv_frame.buffer().set_text(&text);
-            let clipboard = display.clipboard();
-                clipboard.set_text(&text);
-                                }));
+            let tb = window.imp().tv_frame.buffer();
+                let text = tb.text(&tb.start_iter(), &tb.end_iter(), true);
+                let clipboard = display.clipboard();
+                    clipboard.set_text(&text);
+                                    }));
 
         self.imp()
             .txt_browse
@@ -132,59 +134,65 @@ impl Window {
             .tv_frame
             .buffer()
             .connect_changed(clone!(@weak self as window => move |_| {
-                    let tb = window.imp().tv_frame.buffer();
-                            let mut prev = tb.start_iter();
-                        let mut point = tb.start_iter();
-                        while point.forward_char() {
-                            match prev.char() {
-                                '[' | ']' => {
-                                tb.apply_tag_by_name("tag_brackets", &prev, &point);
-                                },
-                                '{' | '}' => {
-                                tb.apply_tag_by_name("tag_braces", &prev, &point);
-                                },
-                                '\\' => {
-                        prev = point;
-                        match point.char() {
-                            '%' |'\\' => {point.forward_char();},
-                        _ => {
-                            while point.forward_char() && point.char().is_ascii_alphabetic(){};
-                    let cmd = tb.text(&prev, &point, true);
-                    if cmd == "begin" || cmd == "end" {
-                    let temp = point;
-                while point.forward_char() && point.char() != '}'{};
-                point.forward_char();
-                        if tb.text(&temp, &point, true) == "{frame}" {
-                while (point.char() != '%' && point.char() != '\n') && point.forward_char(){};
-                let mut sol = prev.clone();
-                sol.backward_char();
-                if cmd == "begin"{
-                    tb.apply_tag_by_name("tag_begin_frame", &sol, &point);
-                } else {
-                    tb.apply_tag_by_name("tag_end_frame", &sol, &point);
-                }
-                        }
-                point = temp;
+            let tb = window.imp().tv_frame.buffer();
+                    let mut prev = tb.start_iter();
+                let mut point = tb.start_iter();
+                while point.forward_char() {
+                    if prev.char() == '\\' {
+                        window.format_frametitle(&tb, &mut point);
             }
-                    tb.apply_tag_by_name("tag_command", &prev, &point);
-                        }
-                        }
-                                },
-                    '%' => {
-                        while point.forward_char() && point.char() != '\n'{};
-                            tb.apply_tag_by_name("tag_comment", &prev, &point);
-                        },
-                        _ => (),
-                            };
-
-                                    prev = point;
-                        }
-                                    }));
+                            prev = point;
+                }
+                            }));
 
         // TEMP for testing
         self.imp()
             .txt_browse
             .set_text("/home/gaurav/work/presentations/ms-thesis/slides.tex");
+    }
+
+    fn format_frametitle(&self, tb: &gtk::TextBuffer, point: &mut gtk::TextIter) {
+        let prev = *point;
+        match point.char() {
+            '%' | '\\' => (),
+            _ => {
+                while point.forward_char() && point.char().is_ascii_alphabetic() {}
+                let cmd = tb.text(&prev, &point, true);
+                match cmd.as_str() {
+                    "begin" => {
+                        let temp = *point;
+                        while point.forward_char() && point.char() != '}' {}
+                        point.forward_char();
+                        if tb.text(&temp, &point, true) == "{frame}" && point.char() != '\n' {
+                            let mut sol = prev.clone();
+                            sol.backward_char();
+                            if point.char() != '{' {
+                                while point.forward_char() && point.char() != ']' {}
+                                point.forward_char();
+                            }
+                            let sob = *point;
+                            while (point.char() != '%' && point.char() != '\n')
+                                && point.forward_char()
+                            {}
+                            tb.apply_tag_by_name("tag_frametitle", &sob, &point);
+                        }
+                        *point = temp;
+                    }
+                    "frametitle" => {
+                        if point.char() != '{' {
+                            while point.forward_char() && point.char() != ']' {}
+                            point.forward_char();
+                        }
+                        let sob = *point;
+                        while (point.char() != '%' && point.char() != '\n') && point.forward_char()
+                        {
+                        }
+                        tb.apply_tag_by_name("tag_frametitle", &sob, &point);
+                    }
+                    _ => (),
+                }
+            }
+        }
     }
 
     fn get_contents(&self) -> String {

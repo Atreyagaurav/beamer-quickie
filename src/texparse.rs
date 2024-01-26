@@ -21,6 +21,7 @@ impl ToString for BeamerContents {
     fn to_string(&self) -> String {
         let mut contents = String::new();
         contents.push_str(&self.preamble);
+        contents.push_str("\n\n");
         self.slides.iter().filter(|s| s.include).for_each(|s| {
             contents.push_str(&s.content);
             contents.push_str("\n\n");
