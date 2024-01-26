@@ -55,10 +55,16 @@ impl Window {
         self.imp()
             .btn_browse
             .connect_clicked(clone!(@weak self as window => move |_| {
+		let txt = window.imp().txt_browse.text();
+		let initial = if txt.is_empty() {
+		    gio::File::for_path(".")
+		} else {
+		    gio::File::for_path(txt)
+		};
             let dialog = gtk::FileDialog::builder()
                         .title("Beamer LaTeX File")
                         .accept_label("Open")
-                        .initial_folder(&gio::File::for_path(window.imp().txt_browse.text()))
+                        .initial_folder(&initial)
                         .build();
 
             dialog.open(Some(&window), gio::Cancellable::NONE,clone!(@weak window => move |file| {
@@ -125,11 +131,6 @@ impl Window {
                             prev = point;
                 }
                             }));
-
-        // TEMP for testing
-        self.imp()
-            .txt_browse
-            .set_text("/home/gaurav/work/presentations/ms-thesis/slides.tex");
     }
 
     fn format_frametitle(&self, tb: &gtk::TextBuffer, point: &mut gtk::TextIter) {
