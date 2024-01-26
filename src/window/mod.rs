@@ -138,14 +138,14 @@ impl Window {
             '%' | '\\' => (),
             _ => {
                 while point.forward_char() && point.char().is_ascii_alphabetic() {}
-                let cmd = tb.text(&prev, &point, true);
+                let cmd = tb.text(&prev, point, true);
                 match cmd.as_str() {
                     "begin" => {
                         let temp = *point;
                         while point.forward_char() && point.char() != '}' {}
                         point.forward_char();
-                        if tb.text(&temp, &point, true) == "{frame}" && point.char() != '\n' {
-                            let mut sol = prev.clone();
+                        if tb.text(&temp, point, true) == "{frame}" && point.char() != '\n' {
+                            let mut sol = prev;
                             sol.backward_char();
                             if point.char() != '{' {
                                 while point.forward_char() && point.char() != ']' {}
@@ -155,7 +155,7 @@ impl Window {
                             while (point.char() != '%' && point.char() != '\n')
                                 && point.forward_char()
                             {}
-                            tb.apply_tag_by_name("tag_frametitle", &sob, &point);
+                            tb.apply_tag_by_name("tag_frametitle", &sob, point);
                         }
                         *point = temp;
                     }
@@ -168,7 +168,7 @@ impl Window {
                         while (point.char() != '%' && point.char() != '\n') && point.forward_char()
                         {
                         }
-                        tb.apply_tag_by_name("tag_frametitle", &sob, &point);
+                        tb.apply_tag_by_name("tag_frametitle", &sob, point);
                     }
                     _ => (),
                 }

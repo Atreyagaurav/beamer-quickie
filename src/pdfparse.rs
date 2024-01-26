@@ -1,6 +1,4 @@
-use cairo;
 use lazy_static::lazy_static;
-use poppler;
 use std::collections::hash_map::DefaultHasher;
 use std::fs::File;
 use std::hash::{Hash, Hasher};
@@ -94,7 +92,7 @@ pub fn frames_pages(path: &Path) -> Vec<usize> {
             prev = l;
         }
 
-        i = i + 1;
+        i += 1;
     }
     pages
 }

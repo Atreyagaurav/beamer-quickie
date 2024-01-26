@@ -1,8 +1,6 @@
-use std::path::{Path, PathBuf};
-use synctex_sys;
-
 use libc::c_int;
 use std::ffi::{CStr, CString};
+use std::path::{Path, PathBuf};
 
 pub struct Scanner {
     inner: synctex_sys::synctex_scanner_p,
@@ -14,10 +12,10 @@ pub struct Scanner {
 
 impl Scanner {
     pub fn from_output(output: &Path, dir: Option<&Path>) -> Option<Self> {
-        let dir = dir.map(|d| d).unwrap_or(output.parent()?);
+        let dir = dir.unwrap_or(output.parent()?);
         let output = CString::new(output.to_string_lossy().as_ref()).unwrap();
         let dir = CString::new(dir.to_string_lossy().as_ref()).unwrap();
-        let parse: c_int = 1.into();
+        let parse: c_int = 1;
         let inner = unsafe {
             synctex_sys::synctex_scanner_new_with_output_file(
                 output.into_raw(),

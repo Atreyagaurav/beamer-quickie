@@ -79,7 +79,7 @@ impl SlideType {
         }
     }
 
-    pub fn to_num(&self) -> u8 {
+    pub fn to_num(self) -> u8 {
         match self {
             SlideType::Main => 0,
             SlideType::Appendix => 1,

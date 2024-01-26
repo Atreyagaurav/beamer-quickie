@@ -5,11 +5,11 @@ use std::{fs::read_to_string, path::Path};
 use crate::pdfparse;
 use crate::slide::{SlideData, SlideType};
 
-pub const BEGIN_FRAME: &'static str = r"\begin{frame}";
-pub const END_FRAME: &'static str = r"\end{frame}";
-pub const APPENDIX: &'static str = r"\appendix";
-pub const BEGIN_DOCUMENT: &'static str = r"\begin{document}";
-pub const END_DOCUMENT: &'static str = r"\end{document}";
+pub const BEGIN_FRAME: &str = r"\begin{frame}";
+pub const END_FRAME: &str = r"\end{frame}";
+pub const APPENDIX: &str = r"\appendix";
+pub const BEGIN_DOCUMENT: &str = r"\begin{document}";
+pub const END_DOCUMENT: &str = r"\end{document}";
 
 pub struct BeamerContents {
     preamble: String,
@@ -158,7 +158,7 @@ impl BeamerContents {
                 };
 
                 let set_thumbnail = |sob: &mut SlideData| {
-                    if let Some(page) = get_page(&sob) {
+                    if let Some(page) = get_page(sob) {
                         sob.image = pdfparse::get_thumbnail(&pdffile, page);
                     }
                 };
