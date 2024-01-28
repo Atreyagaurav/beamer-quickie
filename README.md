@@ -5,7 +5,7 @@ Quickly open a beamer presentation file (.tex) and copy some slides.
 Provides TeX codes to copy, as well as scans the text for any graphics files you might have to copy to the new location.
 
 # Introduction
-This is a really simple app that I made to learn GTK in rust. 
+This is a really simple app that I made to learn GTK in rust.
 
 The concept is to open LaTeX Beamer files, and see the corresponding pages from the compiled PDF along with your code, so that you can copy some slides from there without having to search the text manually.
 
@@ -30,3 +30,23 @@ There are many features that could be possible with this. So far my knowledge of
 One thing I wanted to do was save the file, but currently the TeX file's contents are read only for the `frame` environment, so anything between the frames is lost. Like `\section` and other environment info. Hence I didn't add a save button that might make you lose contents on the file.
 
 The `List Graphics` currently lists the graphics by finding the `\includegraphics` command arguments and then searching for those files in directories in `\graphicspath` command (and the parent dir of TeX file). You can use that to copy graphics for a new project. But since LaTeX allows you to not have to write the extension of the files, there is a field where you can give your lists of extensions to try if the `\includegraphics` command argument has none. The extensions here should be the same order of extension as the one in your `\DeclareGraphicsExtensions` command (the default value is provided).
+
+# Installation
+## Linux
+
+### Arch Linux
+`PKGBUILD` file is provided so simply do `makepkg -si` to compile and install. It should take care of all dependencies.
+
+### Others
+[Install `rust`](https://www.rust-lang.org/tools/install) on your computer.
+
+Install `libpoppler`, `cairo`, `gtk4` and `gtksourceview5` which are the dependencies. For example, in arch you would do:
+`pacman -S gtk4 sourceview5` to install those two, find the corresponding packages for your distribution, some of them might already be there. You probably would need the `libs` version.
+
+Then compile the program using `cargo build --release`.
+
+
+## Windows
+Same steps as linux, but you'll have to install gtk4 and sourceview5 and compile it, and make them available to the PATH as well as the LIBS.
+
+[Follow the instructions here to know how to compile a gtk app in rust](https://gtk-rs.org/gtk4-rs/stable/latest/book/installation_windows.html#install-gtk-4)
