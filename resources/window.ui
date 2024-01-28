@@ -109,7 +109,9 @@
 	    </child>
 	    <child>
 	      <object class="GtkEntry" id="txt_graphics">
-		<property name="text">pdf,png,jpeg</property>
+		<!-- Default value for \DeclareGraphicsExtensions -->
+		<!-- http://latexref.xyz/_005cDeclareGraphicsExtensions.html -->
+		<property name="text">pdf,png,jpg,mps,jpeg,jbig2,jb2,PDF,PNG,JPG,JPEG,JBIG2,JB2</property>
 	      </object>
 	    </child>
 	  </object>
