@@ -66,7 +66,7 @@
 	      </object>
 	    </child>
 	    <child>
-	      <object class="GtkCheckButton" id="cb_preamble">
+	      <object class="GtkCheckButton" id="cb_slidesonly">
 		<property name="label">Slides Only</property>
 		<property name="tooltip-text">Do not include the preamble and other commands</property>
 	      </object>
@@ -81,6 +81,12 @@
 	      <object class="GtkButton" id="btn_copy">
 		<property name="label">Copy</property>
 		<property name="tooltip-text">Copy text on the Editor</property>
+	      </object>
+	    </child>
+	    <child>
+	      <object class="GtkButton" id="btn_graphics">
+		<property name="label">List Graphics</property>
+		<property name="tooltip-text">List the used graphics files</property>
 	      </object>
 	    </child>
 	  </object>

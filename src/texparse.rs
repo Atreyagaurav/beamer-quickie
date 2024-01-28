@@ -10,6 +10,9 @@ pub const END_FRAME: &str = r"\end{frame}";
 pub const APPENDIX: &str = r"\appendix";
 pub const BEGIN_DOCUMENT: &str = r"\begin{document}";
 pub const END_DOCUMENT: &str = r"\end{document}";
+pub const GRAPHICS_PATH_COMMAND: &str = r"\graphicspath";
+pub const GRAPHICS_COMMAND: &str = r"\includegraphics";
+pub const COMMENT_CHAR: char = '%';
 
 pub struct BeamerContents {
     preamble: String,
@@ -215,4 +218,75 @@ fn get_frames(
         start = slide_end;
     }
     slides
+}
+
+pub fn get_graphics_dir(preamble: &str) -> Vec<&str> {
+    let mut offset = 0;
+    let mut graphics: Vec<&str> = vec!["."];
+    'outer: while let Some(mut p) = preamble[offset..].find(GRAPHICS_PATH_COMMAND) {
+        let mut sol = preamble[..(offset + p)].rfind('\n').unwrap_or(0);
+        while let Some(pos) = preamble[sol..(offset + p)].find(COMMENT_CHAR) {
+            if !preamble[(sol + pos - 1)..].starts_with('\\') {
+                // Idk if it'll work properly, trying to skip if it's commented out
+                offset += p;
+                continue 'outer;
+            }
+            sol += pos;
+        }
+        if let Some((paths, o)) = get_first_argument(&preamble[offset + p..]) {
+            graphics.append(
+                &mut paths
+                    .split(',')
+                    .map(|s| {
+                        s.trim()
+                            .trim_start_matches('{')
+                            .trim_end_matches('}')
+                            .trim()
+                    })
+                    .collect(),
+            );
+            p += o;
+        }
+        offset += p;
+    }
+    graphics
+}
+
+pub fn get_graphics(content: &str) -> Vec<&str> {
+    let mut offset = 0;
+    let mut graphics: Vec<&str> = Vec::new();
+    'outer: while let Some(mut p) = content[offset..].find(GRAPHICS_COMMAND) {
+        let mut sol = content[..(offset + p)].rfind('\n').unwrap_or(0);
+        while let Some(pos) = content[sol..(offset + p)].find(COMMENT_CHAR) {
+            if !content[(sol + pos - 1)..].starts_with('\\') {
+                // Idk if it'll work properly, trying to skip if it's commented out
+                offset += p + 1;
+                continue 'outer;
+            }
+            sol += pos;
+        }
+
+        if let Some((path, o)) = get_first_argument(&content[offset + p..]) {
+            graphics.push(path);
+            p += o;
+        }
+        offset += p;
+    }
+    graphics
+    // graphics
+    //     .iter()
+    //     .filter_map(|gp| {
+    //         parents
+    //             .iter()
+    //             .map(|p| p.join(gp))
+    //             .filter(|p| p.exists())
+    //             .next()
+    //     })
+    //     .collect()
+}
+
+fn get_first_argument(content: &str) -> Option<(&str, usize)> {
+    let start = content.find('{')? + 1;
+    let end = start + content[start..].find('}')?;
+    Some((&content[start..end], end))
 }

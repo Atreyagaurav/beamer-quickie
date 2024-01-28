@@ -13,9 +13,9 @@ The frame images are loaded from PDF of the same name as the LaTeX file (if pres
 
 Use Generate to copy the selected slide's texts into the Editor, and then use Copy button to copy it (you can edit there if you want). The syntax highlighting is basic.
 
-# Other Features
+# Other Features and Non-features
 There are many features that could be possible with this. So far my knowledge of the GTK limits a lot of them. Feel free to make issues and maybe pull requests if that feature seems like a good idea.
 
 One thing I wanted to do was save the file, but currently the TeX file's contents are read only for the `frame` environment, so anything between the frames is lost. Like `\section` and other environment info. Hence I didn't add a save button that might make you lose contents on the file.
 
-
+The `List Graphics` currently just lists the graphics by finding the `\includegraphics` command arguments. I was planning on using the `\graphicspath` command to actually get a list of absolute paths that you can copy for a new project, but that turned out complicated. Upto getting the path was easy, then I realized that LaTeX allows you to not have to write the extension of the files, so that'd be too complicated.

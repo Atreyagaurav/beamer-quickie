@@ -7,10 +7,11 @@ use gtk::{prelude::*, ListItem};
 use itertools::Itertools;
 use sourceview5::gtk::prelude::TextBufferExt;
 use sourceview5::gtk::prelude::TextViewExt;
+use std::iter::Iterator;
 
 use crate::slide::{SlideData, SlideObject};
 use crate::slide_row::SlideRow;
-use crate::texparse::BeamerContents;
+use crate::texparse::{self, BeamerContents};
 
 glib::wrapper! {
     pub struct Window(ObjectSubclass<imp::Window>)
@@ -55,19 +56,15 @@ impl Window {
         self.imp()
             .btn_browse
             .connect_clicked(clone!(@weak self as window => move |_| {
-		let txt = window.imp().txt_browse.text();
-		let initial = if txt.is_empty() {
-		    gio::File::for_path(".")
-		} else {
-		    gio::File::for_path(txt)
-		};
-            let dialog = gtk::FileDialog::builder()
+            let mut dialog = gtk::FileDialog::builder()
                         .title("Beamer LaTeX File")
-                        .accept_label("Open")
-                        .initial_folder(&initial)
-                        .build();
+                    .accept_label("Open");
+		let txt = window.imp().txt_browse.text();
+		if !txt.is_empty() {
+		    dialog = dialog.initial_file(&gio::File::for_path(txt));
+		};
 
-            dialog.open(Some(&window), gio::Cancellable::NONE,clone!(@weak window => move |file| {
+            dialog.build().open(Some(&window), gio::Cancellable::NONE,clone!(@weak window => move |file| {
                         if let Ok(file) = file {
                 let filename = file.path().expect("Couldn't get file path");
                 let name = filename.to_string_lossy();
@@ -90,6 +87,14 @@ impl Window {
             let text = window.get_contents();
             window.imp().tv_frame.buffer().set_text(&text);
                         }));
+
+        self.imp()
+            .btn_graphics
+            .connect_clicked(clone!(@weak self as window => move |_| {
+                let (dirs, files) = window.get_graphics();
+                let text = format!("Graphics Directories:\n\n{}\n\nGraphics:\n\n{}\n", dirs.join("\n"), files.join("\n"));
+                window.imp().tv_frame.buffer().set_text(&text);
+            }));
 
         self.imp()
             .btn_copy
@@ -177,9 +182,8 @@ impl Window {
         }
     }
 
-    fn get_contents(&self) -> String {
-        let slides: Vec<SlideData> = self
-            .slides()
+    fn get_slidedatas(&self) -> Vec<SlideData> {
+        self.slides()
             .iter::<SlideObject>()
             .filter(|s| s.as_ref().unwrap().include())
             .map(|s| {
@@ -189,13 +193,37 @@ impl Window {
                 )
             })
             .map(|(s, t)| SlideData::new(true, 0, 0, s, None, t))
-            .collect();
-        if self.imp().cb_preamble.is_active() {
+            .collect()
+    }
+
+    fn get_contents(&self) -> String {
+        let slides = self.get_slidedatas();
+        if self.imp().cb_slidesonly.is_active() {
             slides.iter().map(|s| &s.content).join("\n\n")
         } else {
             let preamble = self.imp().preamble.borrow().clone();
             BeamerContents::from_slides(preamble, slides).to_string()
         }
+    }
+
+    fn get_graphics(&self) -> (Vec<String>, Vec<String>) {
+        let graphics_paths = if self.imp().cb_slidesonly.is_active() {
+            vec![".".to_string()]
+        } else {
+            let preamble = self.imp().preamble.borrow().clone();
+            texparse::get_graphics_dir(&preamble)
+                .iter()
+                .map(|s| s.to_string())
+                .collect()
+        };
+        let slides = self.get_slidedatas();
+        let graphics = slides
+            .iter()
+            .map(|s| &s.content)
+            .flat_map(|c| texparse::get_graphics(c))
+            .map(|s| s.to_string())
+            .collect();
+        (graphics_paths, graphics)
     }
 
     fn setup_factory(&self) {

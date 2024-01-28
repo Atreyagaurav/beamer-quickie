@@ -3,12 +3,6 @@
   <gresource prefix="/org/zerosofts/BeamerQuickie/">
     <file compressed="true" preprocess="xml-stripblanks">slide.ui</file>
     <file compressed="true" preprocess="xml-stripblanks">window.ui</file>
-    <file>icons/edit.svg</file>
-    <file>icons/menu.svg</file>
-    <file>icons/move-bottom.svg</file>
-    <file>icons/move-down.svg</file>
-    <file>icons/move-top.svg</file>
-    <file>icons/move-up.svg</file>
     <file>icons/slide.svg</file>
   </gresource>
 </gresources>
