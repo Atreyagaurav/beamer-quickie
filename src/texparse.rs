@@ -1,6 +1,9 @@
+use std::path::PathBuf;
 use std::slice::Iter;
 use std::string::ToString;
 use std::{fs::read_to_string, path::Path};
+
+use pathdiff::diff_paths;
 
 use crate::pdfparse;
 use crate::slide::{SlideData, SlideType};
@@ -222,13 +225,13 @@ fn get_frames(
 
 pub fn get_graphics_dir(preamble: &str) -> Vec<&str> {
     let mut offset = 0;
-    let mut graphics: Vec<&str> = vec!["."];
+    let mut graphics: Vec<&str> = Vec::new();
     'outer: while let Some(mut p) = preamble[offset..].find(GRAPHICS_PATH_COMMAND) {
         let mut sol = preamble[..(offset + p)].rfind('\n').unwrap_or(0);
         while let Some(pos) = preamble[sol..(offset + p)].find(COMMENT_CHAR) {
             if !preamble[(sol + pos - 1)..].starts_with('\\') {
                 // Idk if it'll work properly, trying to skip if it's commented out
-                offset += p;
+                offset += p + 1;
                 continue 'outer;
             }
             sol += pos;
@@ -273,20 +276,55 @@ pub fn get_graphics(content: &str) -> Vec<&str> {
         offset += p;
     }
     graphics
-    // graphics
-    //     .iter()
-    //     .filter_map(|gp| {
-    //         parents
-    //             .iter()
-    //             .map(|p| p.join(gp))
-    //             .filter(|p| p.exists())
-    //             .next()
-    //     })
-    //     .collect()
+}
+
+pub fn filter_graphics(
+    tex_path: &Path,
+    dirs: &[String],
+    paths: &[String],
+    exts: &[String],
+) -> Vec<String> {
+    let parent = tex_path.parent().expect(".tex file should have parent dir");
+    let dirs: Vec<PathBuf> = dirs.iter().map(|d| parent.join(d)).collect();
+    paths
+        .iter()
+        .filter_map(|gp| {
+            dirs.iter().map(|p| p.join(gp)).find_map(|p| {
+                if !p.extension().is_some() {
+                    exts.iter()
+                        .map(|e| p.with_extension(e))
+                        .filter(|pe| pe.exists())
+                        .next()
+                } else {
+                    if p.exists() {
+                        Some(p)
+                    } else {
+                        None
+                    }
+                }
+            })
+        })
+        .map(|p| diff_paths(p, parent).unwrap().to_string_lossy().to_string())
+        .collect()
 }
 
 fn get_first_argument(content: &str) -> Option<(&str, usize)> {
     let start = content.find('{')? + 1;
-    let end = start + content[start..].find('}')?;
+    let mut end = start;
+    let mut nest = 0;
+    for (i, c) in content[start..].chars().enumerate() {
+        match c {
+            '{' => nest += 1,
+            '}' => {
+                if nest == 0 {
+                    end = start + i;
+                    break;
+                } else {
+                    nest -= 1;
+                }
+            }
+            _ => (),
+        }
+    }
     Some((&content[start..end], end))
 }

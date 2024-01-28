@@ -8,6 +8,7 @@ use itertools::Itertools;
 use sourceview5::gtk::prelude::TextBufferExt;
 use sourceview5::gtk::prelude::TextViewExt;
 use std::iter::Iterator;
+use std::path::PathBuf;
 
 use crate::slide::{SlideData, SlideObject};
 use crate::slide_row::SlideRow;
@@ -82,6 +83,12 @@ impl Window {
                             }));
 
         self.imp()
+            .cb_graphics
+            .connect_active_notify(clone!(@weak self as window => move |sall| {
+            window.imp().txt_graphics.set_sensitive(sall.is_active());
+                                }));
+
+        self.imp()
             .btn_preview
             .connect_clicked(clone!(@weak self as window => move |_| {
             let text = window.get_contents();
@@ -91,7 +98,8 @@ impl Window {
         self.imp()
             .btn_graphics
             .connect_clicked(clone!(@weak self as window => move |_| {
-                let (dirs, files) = window.get_graphics();
+		let resolve = window.imp().cb_graphics.is_active();
+                let (dirs, files) = window.get_graphics(resolve);
                 let text = format!("Graphics Directories:\n\n{}\n\nGraphics:\n\n{}\n", dirs.join("\n"), files.join("\n"));
                 window.imp().tv_frame.buffer().set_text(&text);
             }));
@@ -206,23 +214,44 @@ impl Window {
         }
     }
 
-    fn get_graphics(&self) -> (Vec<String>, Vec<String>) {
-        let graphics_paths = if self.imp().cb_slidesonly.is_active() {
-            vec![".".to_string()]
-        } else {
+    fn get_graphics(&self, resolve: bool) -> (Vec<String>, Vec<String>) {
+        let mut graphics: Vec<String> = Vec::new();
+        let mut graphics_paths = vec![".".to_string()];
+        if !self.imp().cb_slidesonly.is_active() {
             let preamble = self.imp().preamble.borrow().clone();
-            texparse::get_graphics_dir(&preamble)
-                .iter()
-                .map(|s| s.to_string())
-                .collect()
+            graphics_paths.extend(
+                texparse::get_graphics_dir(&preamble)
+                    .iter()
+                    .map(|s| s.to_string()),
+            );
+            graphics.extend(
+                texparse::get_graphics(&preamble)
+                    .iter()
+                    .map(|s| s.to_string()),
+            );
         };
         let slides = self.get_slidedatas();
-        let graphics = slides
-            .iter()
-            .map(|s| &s.content)
-            .flat_map(|c| texparse::get_graphics(c))
-            .map(|s| s.to_string())
-            .collect();
+        graphics.extend(
+            slides
+                .iter()
+                .map(|s| &s.content)
+                .flat_map(|c| texparse::get_graphics(c))
+                .map(|s| s.to_string()),
+        );
+        if resolve {
+            graphics = texparse::filter_graphics(
+                &PathBuf::from(self.imp().txt_browse.text()),
+                &graphics_paths,
+                &graphics,
+                &self
+                    .imp()
+                    .txt_graphics
+                    .text()
+                    .split(',')
+                    .map(|s| s.to_string())
+                    .collect::<Vec<String>>(),
+            );
+        }
         (graphics_paths, graphics)
     }
 

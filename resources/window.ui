@@ -83,10 +83,33 @@
 		<property name="tooltip-text">Copy text on the Editor</property>
 	      </object>
 	    </child>
+	  </object>
+	</child>
+	<child>
+	  <object class="GtkBox">
+	    <property name="spacing">10</property>
+	    <property name="halign">center</property>
 	    <child>
 	      <object class="GtkButton" id="btn_graphics">
 		<property name="label">List Graphics</property>
 		<property name="tooltip-text">List the used graphics files</property>
+	      </object>
+	    </child>
+	    <child>
+	      <object class="GtkCheckButton" id="cb_graphics">
+		<property name="label">Resolve</property>
+		<property name="tooltip-text">Resolve the graphics path</property>
+		<property name="active">1</property>
+	      </object>
+	    </child>
+	    <child>
+	      <object class="GtkLabel">
+		<property name="label">Extensions:</property>
+	      </object>
+	    </child>
+	    <child>
+	      <object class="GtkEntry" id="txt_graphics">
+		<property name="text">pdf,png,jpeg</property>
 	      </object>
 	    </child>
 	  </object>

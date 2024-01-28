@@ -24,6 +24,10 @@ pub struct Window {
     #[template_child]
     pub btn_copy: TemplateChild<gtk::Button>,
     #[template_child]
+    pub cb_graphics: TemplateChild<gtk::CheckButton>,
+    #[template_child]
+    pub txt_graphics: TemplateChild<gtk::Entry>,
+    #[template_child]
     pub btn_graphics: TemplateChild<gtk::Button>,
     #[template_child]
     pub lv_slides: TemplateChild<gtk::ListView>,

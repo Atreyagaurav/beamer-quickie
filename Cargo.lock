@@ -25,7 +25,7 @@ checksum = "d468802bab17cbc0cc575e9b053f41e72aa36bfa6b7f55e3529ffa43161b97fa"
 
 [[package]]
 name = "beamer-quickie"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "cairo-rs",
@@ -35,6 +35,7 @@ dependencies = [
  "itertools",
  "lazy_static",
  "libc",
+ "pathdiff",
  "poppler-rs",
  "sourceview5",
  "synctex_sys",
@@ -634,6 +635,12 @@ dependencies = [
  "libc",
  "system-deps",
 ]
+
+[[package]]
+name = "pathdiff"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8835116a5c179084a830efb3adc117ab007512b535bc1a21c991d3b32a6b44dd"
 
 [[package]]
 name = "peeking_take_while"

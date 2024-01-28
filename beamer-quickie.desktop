@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Beamer Quickie
+Comment=Quickly copy your beamer slides with GUI
+# Path=
+Exec=beamer-quickie
+# Icon=
+Terminal=false
+Categories=Office;Presentation;TextEditor;
